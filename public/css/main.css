@@ -1,0 +1,126 @@
+:root {
+  --default-color: white;
+}
+
+/* Vertical - like the phone */
+@media screen and (orientation: portrait) {
+  :root {
+    --shadow: 1px 1px 4px var(--default-color);
+  }
+  .square-box{
+    width: 98%;
+    border-radius: 2px;
+    border-width: 5px;
+  }
+ }
+
+/* Horizontal, like good old browser */
+@media screen and (orientation: landscape) {
+  :root {
+    --shadow: 2px 2px 0px var(--default-color);
+  }
+  .square-box{
+    width: 49%;
+    float: left;
+    border-radius: 5px;
+    border-width: 5px;
+  }
+}
+table{
+  width:100%;
+  height: 100%;
+  position:  absolute;
+  top: 0;
+  left: 0; 
+  bottom: 0;
+  right: 0;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+/* border around the board */
+.square-box {
+  position: relative;
+  margin: auto;
+  background: white;
+  overflow: hidden;
+  border-style: solid; 
+  border-bottom-color: #aaa;
+  border-right-color: #aaa;
+  border-top-color: #ddd;
+  border-left-color: #ddd; 
+}
+.square-box:before{
+  content:"";
+  display: block;
+  padding-top: 100%;
+}
+tr{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;  
+}
+td {
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+}
+body {
+  background: var(--default-color);
+}
+
+.checkerpiece {
+  /* pointer-events: none;
+  user-select: none;	  */
+  margin: 0px !important;
+  padding: 0px !important;
+  border: 0px !important;
+  cursor:move;
+  /* position:absolute; */
+
+}
+
+.dragItem {
+  position: absolute;
+  display: none;
+  background-color: transparent;
+  color: transparent;
+  padding: 0px 10px 0px 10px;
+}
+
+.modal{
+  width:100%;
+  height:100%;
+  position: absolute;
+  top: 0px ;
+  left: 0px;
+  z-index: 100 ;
+  background-color:black;
+  color:white;
+  opacity: 0.9;
+}
+.modal_msg{
+  opacity: 100 !important;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-top: 50px;
+  color:white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  z-index: 101 ;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+
+#fadeMe {
+  opacity: 1;
+  transition: opacity 1s; 
+}
+
+#fadeMe.fade {
+  opacity: 0;
+}
+
+

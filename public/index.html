@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+
+<head>
+	<title>Checkers</title>
+	<link rel="stylesheet" type="text/css" href="./css/main.css">
+</head>
+
+<body>
+	<div id="checkerboard" draggable = "false" class="square-box"></div>
+
+    <div class="modal" id="modal_div" style="display:none">
+        <div id="modal_msg" class="modal_msg"></div>
+	</div>
+
+	<div id="touchDragDiv" class="dragItem">TOUCH</div>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="application/javascript" src="./js/socketStuff.js"></script>
+	<script type="application/javascript" src="./js/canvasStuff.js"></script>
+</body>
+
+</html>
