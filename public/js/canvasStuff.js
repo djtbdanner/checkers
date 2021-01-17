@@ -78,13 +78,20 @@ function appendImage(square, image) {
     square.appendChild(img);
 }
 
+
 function movePiece(pieceData) {
     let data = JSON.parse(pieceData);
     let piece = document.getElementById(data.piece);
+    let pieceWidth = piece.offsetWidth;
+    let otherWidth = data.boardWidth;
+    let percent = checkerBoardWidth/otherWidth;
+    let x = Math.round(parseFloat(data.x) * percent) - Math.round(pieceWidth/2);
+    let y = Math.round(parseFloat(data.y) * percent) - Math.round(pieceWidth/2);
     let pos = piece.style.position;
     piece.style.position = "absolute";
-    piece.style.top = data.y + "px";
-    piece.style.left = data.x + "px";
+//    console.log(JSON.stringify(data) + `x = ${x}, y = ${y}, percent =${percent} otherwidth =${otherWidth} width = ${checkerBoardWidth}`);
+    piece.style.top = y + "px";
+    piece.style.left = x + "px";
 }
 
 function addListeners() {
@@ -99,10 +106,11 @@ function addListeners() {
     }, false);
     document.addEventListener('dragstart', (event) => {
         dragged = event.target;
+        dragged.style.opacity = .5;
     }, false);
     document.addEventListener("dragover", function (event) {
         event.preventDefault();
-        let data = { piece: dragged.id, x: event.pageX, y: event.pageY };
+        let data = { piece: dragged.id, x: event.pageX, y: event.pageY,  boardWidth: checkerBoardWidth };
         sendXY(data);
     }, false);
     document.addEventListener("dragenter", function (event) {
@@ -113,13 +121,14 @@ function addListeners() {
     document.addEventListener("dragleave", function (event) {
         if (event.target.style) {
             event.target.style.opacity = "";
+            dragged.style.opacity = .5;
         }
     }, false);
 
     let touchDragDiv = document.getElementById('touchDragDiv');
     /// Touch events for devices
     document.addEventListener('touchend', (event) => {
-        console.log("touchend");
+        // console.log("touchend");
         var touchLocation = event.changedTouches[0];
         var pageX = touchLocation.pageX;
         var pageY = touchLocation.pageY;
@@ -137,9 +146,11 @@ function addListeners() {
     });
 
     document.addEventListener('touchmove', (event) => {
-        console.log("touchmove");
+        // console.log("touchmove");
         let touch = event.targetTouches[0];
-        console.log(touch.target.id);
+        console.log(touch)
+        touch.target.style.opacity = .5;
+        // console.log(touch.target.id);
         event.preventDefault();
         let pageX = touch.pageX;
         let pageY = touch.pageY;
@@ -149,8 +160,9 @@ function addListeners() {
         touchDragDiv.style.display = "block";
         touchDragDiv.style.left = pageX - 50 + 'px';
         touchDragDiv.style.top = pageY - 50 + 'px';
-        console.log(touchDragDiv.style.top);
-        let data = { piece: touch.target.id, x: pageX, y: pageY };
+        // console.log(touchDragDiv.style.top);
+        let data = { piece: touch.target.id, x: pageX, y: pageY, boardWidth: checkerBoardWidth };
+        console.log('y  ' + JSON.stringify(data));
         sendXY(data);
     });
 

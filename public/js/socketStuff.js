@@ -1,7 +1,9 @@
 let socket = io.connect('http://localhost:8080')
 
+let checkerBoardWidth = document.getElementById("checkerboard").offsetWidth;
 function init() {
     drawCheckerBoard();
+    checkerBoardWidth = document.getElementById("checkerboard").offsetWidth;
     socket.emit('init', {
         playerName: "getRealName"
     });
@@ -14,7 +16,7 @@ socket.on('initReturn', (data) => {
 
 socket.on('updateBoard', (data) => {
     let player = JSON.parse(data.player1);
-    console.log(player);
+    // console.log(player);
     addPieces(player.pieces, true);
     player = JSON.parse(data.player2);
     addPieces(player.pieces, false);
@@ -42,8 +44,8 @@ function sendXY(data) {
 }
 
 function sendDrop(piece, targetId){
-    console.log(targetId);
-    console.log(piece);
+    // console.log(targetId);
+    // console.log(piece);
     socket.emit('drop', {targetId:targetId, pieceId: piece.id});
 }
 

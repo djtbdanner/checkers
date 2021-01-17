@@ -137,7 +137,7 @@ function shouldPieceJump(piece, game, currentPlayer) {
             let isOpponentPieceOneColumnOff = false;
             isOpponentPieceOneColumnOff = Math.abs(destinationInts[1] - originInts[1]) === 1;
             if (isOpponentPieceOneColumnOff) {
-                console.log(`my piece ${originInts}, opponent ${destinationInts}`);
+                // console.log(`my piece ${originInts}, opponent ${destinationInts}`);
                 // now is the next square empty (works forward, backward, king, on board or off)
                 let rowAdder = destinationInts[0] > originInts[0] ? 1 : -1;
                 let rowToCheckForEmpty = destinationInts[0] + rowAdder;
