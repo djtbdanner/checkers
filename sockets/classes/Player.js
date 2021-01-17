@@ -7,6 +7,11 @@ class Player{
         this.pieces = pieces;
         this.name = name;
         this.turn = false;
+        // decending true if start at the 8th row.
+        this.decending = true;
+        if (pieces && pieces[0].color === 'B'){
+            this.decending = false;
+        }
     }
 }
 

@@ -6,6 +6,7 @@ const Game = require('./classes/Game');
 const ProcessMove = require('./classes/ProcessMove');
 let games = [];
 
+// when someone connects, hook up player or wait for another player
 io.sockets.on('connect', (socket) => {
     let aGame = undefined;
     games.forEach((game, index) => {
@@ -18,52 +19,50 @@ io.sockets.on('connect', (socket) => {
         let connected = true;
         playerName = data.playerName;
         if (aGame === undefined) {
-            playerOne(socket, playerName, aGame);
+            setUpPlayerOne(socket, playerName, aGame);
         } else {
-            playerTwo(socket, playerName, aGame);
+            setUpPlayerTwo(socket, playerName, aGame);
         }
     });
 
     socket.on('moving', (data) => {
-        let socketId = getSocketIdToSend(socket).socketId;
-        console.log(data);
+        let socketId = getGameAndOtherPlayerSocket(socket).socketId;
+        //console.log(data);
         if (socketId != undefined) {
             socket.to(socketId).emit('otherPlayerMove', JSON.stringify(data));
         }
     });
 
+    // player makes move
     socket.on('drop', (data) => {
-        let vals = getSocketIdToSend(socket);
-        let socketId = vals.socketId;
+        let vals = getGameAndOtherPlayerSocket(socket);
+        let otherPlayerSocketId = vals.socketId;
         let game = vals.game;
         thisPlayer = game.getPlayerBySocket(socket.id);
-        otherPlayer = game.getPlayerBySocket(socketId);
-        if (socketId != undefined) {
+        otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
+        if (otherPlayerSocketId != undefined) {
             let origin = data.pieceId.replace("img_", "");
             const index = thisPlayer.pieces.findIndex(el => el.location === origin);
             let piece = undefined;
             if (index > -1) {
                 piece = thisPlayer.pieces[index];
             }
-            let rule = ProcessMove.isValidMove(thisPlayer, otherPlayer, origin, data.targetId, piece);
-            if (rule) {
-                socket.emit('flashMessage', { message: `Invalid Move:  ${rule}, please try again.` });
-                socket.emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
-                socket.to(socketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
-                return;
+            vals = ProcessMove.validateAndProcessPlayerMove(game, thisPlayer, origin, data.targetId);
+            game = vals.game;
+            let message = vals.message;
+            if (message) {
+                socket.emit('flashMessage', { message: `Invalid Move:  ${message}, please try again.` });
             }
-            //validated in the isValidMove Method
-            let newPiece = new Piece(piece.color, piece.king, data.targetId);
-            thisPlayer.pieces[index] = newPiece;
         }
-
-        /// update board for both players
-        socket.emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
-        socket.to(socketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
+        /// update board for both players - game board is updated in above process
+        thisPlayer = game.getPlayerBySocket(socket.id);
+        otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
+        socket.emit('updateBoard', { player1: JSON.stringify(game.getPlayerBySocket(socket.id)), player2: JSON.stringify(otherPlayer) });
+        socket.to(otherPlayerSocketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
     });
 });
 
-function getSocketIdToSend(socket) {
+function getGameAndOtherPlayerSocket(socket) {
     let game = games.find(g => g.player1.socketId === socket.id);
     let socketId;
     if (game === undefined) {
@@ -81,7 +80,7 @@ function getSocketIdToSend(socket) {
     return { game, socketId };
 }
 
-function playerTwo(socket, playerName, aGame) {
+function setUpPlayerTwo(socket, playerName, aGame) {
     let pieces = [];
     let player = {};
     for (i = 1; i < 4; i++) {
@@ -106,10 +105,11 @@ function playerTwo(socket, playerName, aGame) {
     socket.to(aGame.player1.socketId).emit('initReturn', { player: JSON.stringify(player) });
     socket.to(aGame.player1.socketId).emit('flashMessage', { message: `Playing ${player.name}, you are player 1(black).` });
     aGame.player2 = player;
+    console.log('\n\n\n' + JSON.stringify(aGame));
     games.push(aGame);
 }
 
-function playerOne(socket, playerName, game) {
+function setUpPlayerOne(socket, playerName, game) {
     let pieces = [];
     let player = {};
     for (i = 8; i > 5; i--) {

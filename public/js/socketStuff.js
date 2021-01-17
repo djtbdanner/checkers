@@ -28,6 +28,9 @@ socket.on('flashMessage', (data) => {
     fade(div);
 });
 
+/*
+* When piece is moving, send coordinants so other screen can show moves.
+*/
 let limiter = 0;
 function sendXY(data) {
     // limit the sends, movement is not critical, just nice
