@@ -4,10 +4,7 @@ const Player = require('../../sockets/classes/Player');
 const Game = require('../../sockets/classes/Game');
 const Piece = require('../../sockets/classes/Piece');
 
-
-//console.log(JSON.stringify(game));
 let testGame;
-
 describe("ProcessMove tests", () => {
     beforeEach(() => {
 
@@ -51,15 +48,276 @@ describe("ProcessMove tests", () => {
 
     it("should let player know jump is required", () => {
 
-        let piece = new Piece("B", false, "4_2");
-        testGame.player1.pieces[0] = piece;
+        // player1 moved left top over and up one, player 2 same side over
+        // player1 can jump but 2 cannot becasue there is a piece in the way
+        testGame.player1.pieces[11].location = "5_6";
+        testGame.player2.pieces[11].location = "4_7";
 
-        piece = new Piece("R", false, "5_3");
-        testGame.player2.pieces[0] = piece;
+        testGame.player1.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player1);
+            if (index === 11) {
+                expect(result).toBeTruthy();
+            } else {
+                expect(result).toBeFalsy();
+            }
+        });
 
-        let result = ProcessMove.currentPlayerMustJump(testGame.player1, testGame);
-       // expect(result).toBeTruthy();
+        testGame.player2.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player2);
+            expect(result).toBeFalsy();
+        });
 
+        // move player 1's piece out of the way
+        testGame.player1.pieces[10].location = "5_4";
+        testGame.player1.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player1);
+            if (index === 11) {
+                expect(result).toBeTruthy();
+            } else {
+                expect(result).toBeFalsy();
+            }
+        });
+
+        testGame.player2.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player2);
+            if (index === 11) {
+                expect(result).toBeTruthy();
+            } else {
+                expect(result).toBeFalsy();
+            }
+        });
+    });
+
+    it("should not force backward jump, but king piece must backward jump", () => {
+        testGame.player1.pieces[11].location = "4_5";
+        testGame.player1.pieces[10].location = "5_6";
+        testGame.player1.pieces[9].location = "5_2";
+        testGame.player2.pieces[10].location = "5_4";
+
+        testGame.player1.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player1);
+            expect(result).toBeFalsy();
+        });
+
+        testGame.player2.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player2);
+            expect(result).toBeFalsy();
+        });
+
+        // if piece is king it should jump
+        testGame.player1.pieces[11].king = true;
+        testGame.player1.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player1);
+            if (index === 11) {
+                expect(result).toBeTruthy();
+            } else {
+                expect(result).toBeFalsy();
+            }
+        });
+
+        testGame.player2.pieces.forEach((piece, index) => {
+            let result = ProcessMove.shouldPieceJump(piece, testGame, testGame.player2);
+            expect(result).toBeFalsy();
+        });
+    });
+
+
+    it("should report required jump as needed", () => {
+
+        let shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_3")
+        expect(shouldJump).toBeFalsy();
+
+        testGame.player1.pieces[11].location = "5_6";
+        testGame.player2.pieces[11].location = "4_7";
+
+        shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_3")
+        expect(shouldJump).toBeTruthy();
+        expect(game.player1.turn).toBeTruthy();
+    });
+
+
+    it("should not allow moves that are not jump when jump is available on board", () => {
+        testGame.player1.pieces[11].location = "5_6";
+        testGame.player2.pieces[11].location = "4_7";
+
+        let val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "6_1", "5_2")
+        let game = val.game;
+        let message = val.message;
+
+        expect(game.player1.turn).toBeTruthy();
+        expect(game.player2.turn).toBeFalsy();
+        expect(game.player1.pieces.length).toEqual(12);
+        expect(game.player2.pieces.length).toEqual(12);
+        expect(message).toContain("at least one jump move is on the board and you must do a jump if one is available");
+        expect(game.player1.pieces[8].location).toEqual("6_1");
+
+        val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "5_6", "3_8")
+        game = val.game;
+        message = val.message;
+
+        expect(game.player1.turn).toBeFalsy();
+        expect(game.player2.turn).toBeTruthy();
+        expect(game.player1.pieces.length).toEqual(12);
+        expect(game.player2.pieces.length).toEqual(11);
+        expect(game.player1.pieces[11].location).toEqual("3_8");
+    });
+
+    it("should king me", () => {
+
+        // kind of unrealistic board, but setting up
+        // with pieces that can king and there are no jumps
+        testGame.player2.pieces[3].location = "4_1";
+        testGame.player2.pieces[7].location = "5_2";
+        testGame.player2.pieces[8].location = "4_3";
+        testGame.player1.pieces[3].location = "6_7";
+        testGame.player1.pieces[7].location = "3_8";
+
+        testGame.player1.pieces[11].location = "2_7";
+        testGame.player2.pieces[11].location = "7_8";
+
+        expect(testGame.player1.pieces[9].king).toBeFalsy();
+
+        let val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "2_7", "1_8")
+        let game = val.game;
+        let message = val.message;
+
+        expect(message).toBeFalsy();
+        expect(game.player1.turn).toBeFalsy();
+        expect(game.player2.turn).toBeTruthy();
+        expect(testGame.player1.pieces[11].king).toBeTruthy();
+
+        expect(testGame.player2.pieces[11].king).toBeFalsy();
+        val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player2, "7_8", "8_7");
+        game = val.game;
+        message = val.message;
+        expect(game.player1.turn).toBeTruthy();
+        expect(game.player2.turn).toBeFalsy();
+        expect(testGame.player2.pieces[11].king).toBeTruthy();
+    });
+
+    it("player1 should have move or if no move possible looses", () => {
+
+        let hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeTruthy();
+
+        // block 'em all
+        testGame.player2.pieces[8].location = "5_2";
+        testGame.player2.pieces[9].location = "5_4";
+        testGame.player2.pieces[10].location = "5_6";
+        testGame.player2.pieces[11].location = "5_8";
+        testGame.player2.pieces[4].location = "4_1";
+        testGame.player2.pieces[5].location = "4_3";
+        testGame.player2.pieces[6].location = "4_5";
+        testGame.player2.pieces[7].location = "4_7";
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeFalsy();
+
+        // put 'em back
+        testGame.player2.pieces[8].location = "3_2";
+        testGame.player2.pieces[9].location = "3_4";
+        testGame.player2.pieces[10].location = "3_6";
+        testGame.player2.pieces[11].location = "3_8";
+        testGame.player2.pieces[4].location = "2_1";
+        testGame.player2.pieces[5].location = "2_3";
+        testGame.player2.pieces[6].location = "2_5";
+        testGame.player2.pieces[7].location = "2_7";
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeTruthy();
+
+        // remove all, but one and block it.
+        let piece = new Piece("B", false, "4_1");
+        let pieces = [];
+        pieces.push(piece);
+        testGame.player1.pieces = pieces;
+        // put one behind it so we can king it later.
+        testGame.player2.pieces[11].location = "5_2";
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeFalsy();
+
+        testGame.player1.pieces[0].king = true;
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeTruthy();
+
+        // no longer king
+        testGame.player1.pieces[0].king = false;
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeFalsy();
+
+        // make that last one a jump and it will be true again
+        testGame.player2.pieces.splice(5, 1);
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeTruthy();
+        // no pieces is no move
+        testGame.player1.pieces.splice(0, 1);
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
+        expect(hasMove).toBeFalsy();
+    });
+
+
+    it("player2 should have move or if no move possible looses", () => {
+
+        let hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeTruthy();
+
+        // block 'em all
+        testGame.player1.pieces[8].location = "5_2";
+        testGame.player1.pieces[9].location = "5_4";
+        testGame.player1.pieces[10].location = "5_6";
+        testGame.player1.pieces[11].location = "5_8";
+        testGame.player1.pieces[4].location = "4_1";
+        testGame.player1.pieces[5].location = "4_3";
+        testGame.player1.pieces[6].location = "4_5";
+        testGame.player1.pieces[7].location = "4_7";
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeFalsy();
+
+        // put 'em back
+        testGame.player1.pieces[8].location = "7_2";
+        testGame.player1.pieces[9].location = "7_4";
+        testGame.player1.pieces[10].location = "7_6";
+        testGame.player1.pieces[11].location = "7_8";
+        testGame.player1.pieces[4].location = "6_1";
+        testGame.player1.pieces[5].location = "6_3";
+        testGame.player1.pieces[6].location = "6_5";
+        testGame.player1.pieces[7].location = "6_7";
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeTruthy();
+
+        // remove all, but one and block it.
+        let piece = new Piece("B", false, "5_2");
+        let pieces = [];
+        pieces.push(piece);
+        testGame.player2.pieces = pieces;
+        // put one behind it so we can king it later.
+        testGame.player1.pieces[11].location = "4_3";
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeFalsy();
+
+        testGame.player2.pieces[0].king = true;
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeTruthy();
+
+        // no longer king
+        testGame.player2.pieces[0].king = false;
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeFalsy();
+
+        // make that last one a jump and it will be true again
+        testGame.player1.pieces.splice(5, 1);
+
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeTruthy();
+        // no pieces is no move
+        testGame.player2.pieces.splice(0, 1);
+        hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player2);
+        expect(hasMove).toBeFalsy();
     });
 });
 

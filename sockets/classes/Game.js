@@ -34,5 +34,15 @@ class Game {
         return undefined;
     }
 
+    allPieces() {
+        let pieces = [];
+        if (this.player1 && this.player1.pieces) {
+            pieces.push.apply(pieces, this.player1.pieces);
+        }
+        if (this.player2 && this.player2.pieces) {
+            pieces.push.apply(pieces, this.player2.pieces);
+        }
+        return pieces;
+    }
 }
 module.exports = Game

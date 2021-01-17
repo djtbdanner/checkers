@@ -19,9 +19,9 @@ io.sockets.on('connect', (socket) => {
         let connected = true;
         playerName = data.playerName;
         if (aGame === undefined) {
-            setUpPlayerOne(socket, playerName, aGame);
+            setUpPlayerOne(socket, "PLAYER ONE", aGame);
         } else {
-            setUpPlayerTwo(socket, playerName, aGame);
+            setUpPlayerTwo(socket, "PLAYER TWO", aGame);
         }
     });
 
@@ -59,6 +59,10 @@ io.sockets.on('connect', (socket) => {
         otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
         socket.emit('updateBoard', { player1: JSON.stringify(game.getPlayerBySocket(socket.id)), player2: JSON.stringify(otherPlayer) });
         socket.to(otherPlayerSocketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
+        if (thisPlayer.winner){
+            socket.emit('flashMessage', { message: `YOU WIN!!!!` });
+            socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Sorry, you loose. Better luck next time!` });
+        }
     });
 });
 
@@ -105,7 +109,7 @@ function setUpPlayerTwo(socket, playerName, aGame) {
     socket.to(aGame.player1.socketId).emit('initReturn', { player: JSON.stringify(player) });
     socket.to(aGame.player1.socketId).emit('flashMessage', { message: `Playing ${player.name}, you are player 1(black).` });
     aGame.player2 = player;
-    console.log('\n\n\n' + JSON.stringify(aGame));
+    //console.log('\n\n\n' + JSON.stringify(aGame));
     games.push(aGame);
 }
 

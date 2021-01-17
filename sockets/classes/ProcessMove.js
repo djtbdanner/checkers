@@ -2,29 +2,22 @@ const Piece = require("./Piece");
 const Game = require("./Game");
 const Player = require("./Player");
 
-// exports.isValidMove = (thisPlayer, otherPlayer, originPlace, newPlace, piece) => {
 exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination) => {
-    // console.log(game);
-    // console.log(currentPlayer);
-    // console.log(origin);
-    // console.log(destination);
     let otherPlayer = game.getOtherPlayer(currentPlayer);
 
     if (!currentPlayer.turn) {
         return { game, message: `it is ${otherPlayer.name}'s turn` };
     }
 
-    const pieceIndex = currentPlayer.pieces.findIndex(el => el.location === origin);
-    let piece = undefined;
-    if (pieceIndex > -1) {
-        piece = currentPlayer.pieces[pieceIndex];
-    }
+    let piece = currentPlayer.pieces.find(el => el.location === origin);
     if (piece === undefined) {
         return { game, message: `cannot move opponent's pieces` };
     }
+
     if (destination && destination.startsWith("img")) {
         return { game, message: `cannot move to an occupied square` };
     }
+
     if (destination === undefined || destination === "" || destination === null) {
         return { game, message: `cannot place off the checker board` };
     }
@@ -33,32 +26,47 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
 
     // non valid square
     if ((destinationInts[0] % 2 === 0 && destinationInts[1] % 2 === 0) || (destinationInts[0] % 2 != 0 && destinationInts[1] % 2 != 0)) {
-        return { game, message: `must move diagonally in the forward direction (towards the opponent) to the next dark square` };
+        return { game, message: `must move diagonally in the forward direction (towards the opponent)` };
     }
 
     // pieces that are not kings are directional
     if (!piece.king) {
         let rowsMoved = originInts[0] - destinationInts[0];
-        if (rowsMoved > 0 && currentPlayer.decending || rowsMoved < 1 && !currentPlayer.decending) {
+        if (rowsMoved > 0 && !currentPlayer.decending || rowsMoved < 1 && currentPlayer.decending) {
             return { game, message: `you cannot move that direction unless your piece has been "kinged"` };
         }
     }
 
-    let mustJump = currentPlayerMustJump(game, currentPlayer);
+    let mustJump = shouldAnyPlayerPieceJump(game, currentPlayer);
 
     // over 2 must be a jump
+    let didJump = false;
     if (Math.abs(originInts[0] - destinationInts[0]) > 1 || Math.abs(originInts[1] - destinationInts[1]) > 1) {
-        if (!validateAndProcesPlayerJump(originInts, destinationInts, game, currentPlayer)) {
+        didJump = validateAndProcesPlayerJump(originInts, destinationInts, game, currentPlayer);
+        if (!didJump) {
             return { game, message: `you cannot move more than one row at a time unless you are jumping an opponent piece` };
         }
+    }
+
+    // if a jump is required, be sure one was done.
+    if (mustJump && !didJump) {
+        return { game, message: `at least one jump move is on the board and you must do a jump if one is available` };
     }
 
     if (!piece.king) {
         piece.king = kingMe(currentPlayer, destinationInts);
     }
-    game.resetTurn();
-    let newPiece = new Piece(piece.color, piece.king, destination);
-    currentPlayer.pieces[pieceIndex] = newPiece;
+    piece.location = destination;
+
+    if (didJump && shouldPieceJump(piece, game, currentPlayer)) {
+    } else {
+        game.resetTurn();
+    }
+
+    if (!doesPlayerHaveAMove(game, otherPlayer)){
+        currentPlayer.winner = true;
+    }
+
     return { game, message: undefined };
 }
 
@@ -75,9 +83,9 @@ function getSquaresAsInts(destination, origin) {
 }
 
 function kingMe(currentPlayer, newSquareInts) {
-    let rowToKing = 1;
+    let rowToKing = 8;
     if (currentPlayer.decending) {
-        rowToKing = 8;
+        rowToKing = 1;
     }
     if (newSquareInts[0] === rowToKing) {
         return true;
@@ -110,36 +118,116 @@ function validateAndProcesPlayerJump(oldSquareInts, newSquareInts, game, current
     return false;
 }
 
-function currentPlayerMustJump  (currentPlayer, game)  {
+function shouldPieceJump(piece, game, currentPlayer) {
     let otherPlayer = game.getOtherPlayer(currentPlayer);
-    // check each piece for current player to see if there is a jump
-    let matchFound = false;
-    currentPlayer.pieces.forEach(currentPlayerPiece => {
-        otherPlayer.pieces.every(otherPlayerPiece => {
-            let { destinationInts, originInts } = getSquaresAsInts(otherPlayerPiece.location, currentPlayerPiece.location);
-            console.log(`THIS: ${destinationInts}, ${originInts}`);
-            let isOpponentPieceOneRowOff = false;
-            if (currentPlayerPiece.king) {
-                isOpponentPieceOneRowOff = Math.abs(destinationInts[0] - originInts[0]) === 1;
-            } else {
-                let row = 1;
-                if (currentPlayer.decending) {
-                    row = -1;
-                }
-                isOpponentPieceOneRowOff = destinationInts[0] - originInts[0] === row;
-                if (isOpponentPieceOneRowOff) {
-                    let isOpponentPieceOneColumnOff = false;
-                    isOpponentPieceOneColumnOff = Math.abs(destinationInts[1] - originInts[1]) === 1;
-                    if (isOpponentPieceOneColumnOff){
-                        console.log(`found a potential jump ${destinationInts}, ${originInts}`)
-                        matchFound = true;
-
+    let pieceShouldJump = false;
+    otherPlayer.pieces.every(otherPlayerPiece => {
+        let { destinationInts, originInts } = getSquaresAsInts(otherPlayerPiece.location, piece.location);
+        let isOpponentPieceOneRowOff = false;
+        if (piece.king) {
+            isOpponentPieceOneRowOff = Math.abs(destinationInts[0] - originInts[0]) === 1;
+        } else {
+            let rowAdder = 1;
+            if (currentPlayer.decending) {
+                rowAdder = -1;
+            }
+            isOpponentPieceOneRowOff = destinationInts[0] - originInts[0] === rowAdder;
+        }
+        if (isOpponentPieceOneRowOff) {
+            let isOpponentPieceOneColumnOff = false;
+            isOpponentPieceOneColumnOff = Math.abs(destinationInts[1] - originInts[1]) === 1;
+            if (isOpponentPieceOneColumnOff) {
+                console.log(`my piece ${originInts}, opponent ${destinationInts}`);
+                // now is the next square empty (works forward, backward, king, on board or off)
+                let rowAdder = destinationInts[0] > originInts[0] ? 1 : -1;
+                let rowToCheckForEmpty = destinationInts[0] + rowAdder;
+                let columnAdder = destinationInts[1] > originInts[1] ? 1 : -1;
+                let columnToCheckForEmpty = destinationInts[1] + columnAdder;
+                if (0 < rowToCheckForEmpty && rowToCheckForEmpty <= 8 && 0 < columnToCheckForEmpty && columnToCheckForEmpty <= 8) {
+                    let locationToLand = `${rowToCheckForEmpty}_${columnToCheckForEmpty}`;
+                    let index = game.allPieces().findIndex(el => el.location === locationToLand);
+                    if (index === -1) {
+                        pieceShouldJump = true;
+                        return false;// this tells the 'every' to stop cause we are done, we found a jump
                     }
                 }
             }
-        });
+        }
+        return true;/// keep looping
     });
-    return matchFound;
+    return pieceShouldJump;
+}
+// any of this players pieces have a jump
+function shouldAnyPlayerPieceJump(game, currentPlayer) {
+    let thereIsAJump = false;
+    currentPlayer.pieces.every((piece) => {
+        if (shouldPieceJump(piece, game, currentPlayer)) {
+            thereIsAJump = true;
+            return false;/// stop loop, not returning false as a value
+        }
+        return true;
+    });
+    return thereIsAJump;
 }
 
-exports.currentPlayerMustJump =currentPlayerMustJump;
+function doesPlayerHaveAMove(game, currentPlayer) {
+    let thereIsAMove = false;
+    if (currentPlayer === undefined || currentPlayer.pieces === undefined) {
+        return false;
+    }
+    let allPieces = game.allPieces();
+    currentPlayer.pieces.every((piece) => {
+        // is there an open spot
+        let { destinationInts, originInts } = getSquaresAsInts("0_0", piece.location);
+        let rowToCheckForEmpty = originInts[0] + 1;
+        if (currentPlayer.decending) {
+            rowToCheckForEmpty = originInts[0] - 1;
+        }
+        if (checkColumns(rowToCheckForEmpty, originInts, allPieces)) {
+            thereIsAMove = true;
+            return false;// stop loop
+        }
+        if (piece.king === true) {
+            let rowToCheckForEmpty = originInts[0] - 1;
+            if (currentPlayer.decending) {
+                rowToCheckForEmpty = originInts[0] + 1;
+            }
+            if (checkColumns(rowToCheckForEmpty, originInts, allPieces)) {
+                thereIsAMove = true;
+                return false;// stop loop
+            }
+        }
+        if (shouldPieceJump(piece, game, currentPlayer)) {
+            thereIsAMove = true;
+            return false;/// stop loop, not returning false as a value
+        }
+        return true;
+    });
+    return thereIsAMove;
+}
+
+function checkColumns(rowToCheckForEmpty, originInts, allPieces) {
+    if (0 < rowToCheckForEmpty && rowToCheckForEmpty <= 8) {
+        columnToCheckForEmpty = originInts[1] - 1;
+        if (0 < columnToCheckForEmpty && columnToCheckForEmpty <= 8) {
+            let locationToLand = `${rowToCheckForEmpty}_${columnToCheckForEmpty}`;
+            let index = allPieces.findIndex(el => el.location === locationToLand);
+            if (index === -1) {
+                return true;
+            }
+        }
+        columnToCheckForEmpty = originInts[1] + 1;
+        if (0 < columnToCheckForEmpty && columnToCheckForEmpty <= 8) {
+            let locationToLand = `${rowToCheckForEmpty}_${columnToCheckForEmpty}`;
+            let index = allPieces.findIndex(el => el.location === locationToLand);
+            if (index === -1) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+exports.shouldPieceJump = shouldPieceJump;
+exports.shouldAnyPlayerPieceJump = shouldAnyPlayerPieceJump;
+exports.doesPlayerHaveAMove = doesPlayerHaveAMove;

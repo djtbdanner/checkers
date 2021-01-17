@@ -3,6 +3,7 @@ class Piece{
         this.color = color;
         this.king = king;
         this.location = location;
+        this.decending = "R" === color;
     }
 }
 
