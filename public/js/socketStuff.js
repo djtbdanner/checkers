@@ -1,9 +1,16 @@
-let socket = io.connect('http://localhost:8080')
+var url = window.location.href;
+let socket = io.connect(url);
+// intended globals
+// checkerBoardWidthX Height used in move calculations to determine distance size, etc. (they should be same)
+let checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
+let checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
+// playerNumber used to determine the direction of the board and such.
+let invertedBoard = false;
 
-let checkerBoardWidth = document.getElementById("checkerboard").offsetWidth;
 function init() {
     drawCheckerBoard();
-    checkerBoardWidth = document.getElementById("checkerboard").offsetWidth;
+    checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
+    checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
     socket.emit('init', {
         playerName: "getRealName"
     });
@@ -14,12 +21,24 @@ socket.on('initReturn', (data) => {
     addPieces(player.pieces, false);
 });
 
+socket.on('invertBoard', (data) => {
+    
+    setTimeout(function(){ invertBoard(); }, 3000);
+
+});
+
 socket.on('updateBoard', (data) => {
-    let player = JSON.parse(data.player1);
-    // console.log(player);
-    addPieces(player.pieces, true);
-    player = JSON.parse(data.player2);
-    addPieces(player.pieces, false);
+    if (data){
+        if (data.player1){
+            let player = JSON.parse(data.player1);
+            // console.log(player);
+            addPieces(player.pieces, true);
+        }
+        if (data.player2){
+            player = JSON.parse(data.player2);
+            addPieces(player.pieces, false);
+        }
+    }
 });
 
 socket.on('flashMessage', (data) => {

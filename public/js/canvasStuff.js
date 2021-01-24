@@ -1,10 +1,10 @@
 function drawCheckerBoard() {
-    var checkerboard = document.getElementById("checkerboard");
-    var table = document.createElement("table");
+    let checkerboard = document.getElementById("checkerboard");
+    let table = document.createElement("table");
     table.draggable = false;
-    var row;
-    var rowNumber = 0;
-    var columnNumber = 0;
+    let row;
+    let rowNumber = 0;
+    let columnNumber = 0;
     for (i = 0; i < 64; i++) {
         if (i % 8 === 0) {
             row = document.createElement("tr");
@@ -33,10 +33,16 @@ function drawCheckerBoard() {
         columnNumber = columnNumber + 1;
         row.appendChild(tableData);
     }
-    checkerboard.appendChild(table);
+    checkerboard.appendChild(table);    
     addListeners();
 }
 init();
+
+function invertBoard(){
+    let checkerboard = document.getElementById("checkerboard");
+    checkerboard.classList.add("flip");
+    invertedBoard = !invertedBoard;
+}
 
 function addPieces(playerPieces, clearPiecesFirst) {
     if (clearPiecesFirst) {
@@ -49,12 +55,12 @@ function addPieces(playerPieces, clearPiecesFirst) {
         playerPieces.forEach((piece, index) => {
             let square = document.getElementById(piece.location);
             let imgName = "Black.png";
-            if (piece.king){
+            if (piece.king) {
                 imgName = "KingBlack.png"
             }
             if (piece.color === "R") {
                 imgName = "Red.png"
-                if (piece.king){
+                if (piece.king) {
                     imgName = "KingRed.png"
                 }
             }
@@ -72,6 +78,7 @@ function appendImage(square, image) {
     img.style.height = (height - 5) + "px";
     img.classList.add("checkerpiece");
     img.id = "img_" + square.id;
+    img.draggable = true;
     // no earthly clue why these have to be reset.
     square.style.width = width + "px";
     square.style.height = height + "px";
@@ -84,12 +91,12 @@ function movePiece(pieceData) {
     let piece = document.getElementById(data.piece);
     let pieceWidth = piece.offsetWidth;
     let otherWidth = data.boardWidth;
-    let percent = checkerBoardWidth/otherWidth;
-    let x = Math.round(parseFloat(data.x) * percent) - Math.round(pieceWidth/2);
-    let y = Math.round(parseFloat(data.y) * percent) - Math.round(pieceWidth/2);
+    let percent = checkerBoardWidthX / otherWidth;
+    let x = Math.round(parseFloat(data.x) * percent) - Math.round(pieceWidth / 2);
+    let y = Math.round(parseFloat(data.y) * percent) - Math.round(pieceWidth / 2);
     let pos = piece.style.position;
     piece.style.position = "absolute";
-//    console.log(JSON.stringify(data) + `x = ${x}, y = ${y}, percent =${percent} otherwidth =${otherWidth} width = ${checkerBoardWidth}`);
+    //    console.log(JSON.stringify(data) + `x = ${x}, y = ${y}, percent =${percent} otherwidth =${otherWidth} width = ${checkerBoardWidth}`);
     piece.style.top = y + "px";
     piece.style.left = x + "px";
 }
@@ -107,16 +114,27 @@ function addListeners() {
     document.addEventListener('dragstart', (event) => {
         dragged = event.target;
         dragged.style.opacity = .5;
+        if (invertedBoard){
+            /// cannot figure out how to invert the drag drop when it inverts
+            dragged.style.display = "none";
+        }
     }, false);
     document.addEventListener("dragover", function (event) {
         event.preventDefault();
-        let data = { piece: dragged.id, x: event.pageX, y: event.pageY,  boardWidth: checkerBoardWidth };
+        let x = event.pageX;
+        let y = event.pageY
+        // flip the y/x for other player and repaint the dragged object to the
+        if (invertedBoard){
+            y=Math.abs(y-checkerBoardHeightY);
+            x=Math.abs(x-checkerBoardWidthX);
+        }
+        let data = { piece: dragged.id, x:x, y:y, boardWidth: checkerBoardWidthX };
         sendXY(data);
     }, false);
     document.addEventListener("dragenter", function (event) {
-        if (event.target.style) {
+         if (event.target.style) {
             event.target.style.opacity = .5;
-        }
+         }
     }, false);
     document.addEventListener("dragleave", function (event) {
         if (event.target.style) {
@@ -132,7 +150,7 @@ function addListeners() {
         var touchLocation = event.changedTouches[0];
         var pageX = touchLocation.pageX;
         var pageY = touchLocation.pageY;
-        // hide the div befor getting the location or location will be the div
+        // hide the div before getting the location or location will be the div
         touchDragDiv.style.display = "none";
         touchDragDiv.style.left = '0px';
         touchDragDiv.style.top = '0px';
@@ -146,23 +164,28 @@ function addListeners() {
     });
 
     document.addEventListener('touchmove', (event) => {
-        // console.log("touchmove");
-        let touch = event.targetTouches[0];
-        console.log(touch)
-        touch.target.style.opacity = .5;
-        // console.log(touch.target.id);
         event.preventDefault();
+        let touch = event.targetTouches[0];
+        if (!touch.target.classList.contains("checkerpiece")){
+            return;
+        }
+        touch.target.style.opacity = .5;
+        let offsetX = parseInt(touch.target.style.width, 10) / 2;// to center piece on touch spot
+        let offsetY = offsetX + offsetX * .5;
         let pageX = touch.pageX;
         let pageY = touch.pageY;
         if (!touchDragDiv.hasChildNodes()) {
             touchDragDiv.append(document.getElementById(touch.target.id).cloneNode(false));
         }
         touchDragDiv.style.display = "block";
-        touchDragDiv.style.left = pageX - 50 + 'px';
-        touchDragDiv.style.top = pageY - 50 + 'px';
-        // console.log(touchDragDiv.style.top);
-        let data = { piece: touch.target.id, x: pageX, y: pageY, boardWidth: checkerBoardWidth };
-        console.log('y  ' + JSON.stringify(data));
+        touchDragDiv.style.left = pageX - offsetX + 'px';
+        touchDragDiv.style.top = pageY - offsetY + 'px';
+        // if board is inverted send opposite vertical spot, size calc is handled on other board
+        if (invertedBoard){
+            pageY=Math.abs(pageY-checkerBoardHeightY);
+            pageX=Math.abs(pageX-checkerBoardWidthX);
+        }
+        let data = { piece: touch.target.id, x: pageX, y: pageY, boardWidth: checkerBoardWidthX };
         sendXY(data);
     });
 

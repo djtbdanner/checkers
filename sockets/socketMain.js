@@ -107,9 +107,11 @@ function setUpPlayerTwo(socket, playerName, aGame) {
     socket.emit('initReturn', { player: JSON.stringify(aGame.player1) });
     socket.emit('flashMessage', { message: `Playing ${aGame.player1.name}, you are player 2 (red).` });
     socket.to(aGame.player1.socketId).emit('initReturn', { player: JSON.stringify(player) });
-    socket.to(aGame.player1.socketId).emit('flashMessage', { message: `Playing ${player.name}, you are player 1(black).` });
+    socket.to(aGame.player1.socketId).emit('flashMessage', { message: `Playing ${player.name}, you are player 1 (black).` });
     aGame.player2 = player;
     //console.log('\n\n\n' + JSON.stringify(aGame));
+    // invert board for player 2 so their side is facing them
+    socket.emit('invertBoard', {});
     games.push(aGame);
 }
 
@@ -133,9 +135,7 @@ function setUpPlayerOne(socket, playerName, game) {
     }
     player = new Player(socket.id, pieces, playerName);
     player.turn = true;
-    //console.log(player);
     socket.emit('initReturn', { player: JSON.stringify(player) });
-    // socket.emit('flashMessage', {message:"You are player one, waiting on another player to join..."});
     game = new Game(player, undefined);
     games.push(game);
 }

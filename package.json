@@ -5,7 +5,7 @@
   "main": "servers.js",
   "scripts": {
     "test": "jest --verbose false",
-    "start": "node aindex.js",
+    "start": "node index.js",
     "go": "nodemon index.js"
   },
   "repository": {

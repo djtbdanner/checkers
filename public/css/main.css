@@ -2,6 +2,12 @@
   --default-color: white;
 }
 
+
+.flip{
+  transform: rotate(180deg);
+}
+
+
 /* Vertical - like the phone */
 @media screen and (orientation: portrait) {
   :root {
