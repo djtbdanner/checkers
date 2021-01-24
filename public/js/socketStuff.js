@@ -22,9 +22,7 @@ socket.on('initReturn', (data) => {
 });
 
 socket.on('invertBoard', (data) => {
-    
-    setTimeout(function(){ invertBoard(); }, 3000);
-
+    invertBoard();
 });
 
 socket.on('updateBoard', (data) => {

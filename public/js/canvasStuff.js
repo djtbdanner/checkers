@@ -109,15 +109,16 @@ function addListeners() {
         if (event.target.style) {
             event.target.style.opacity = "";
         }
+        dragged.style.display = "block";
         sendDrop(dragged, event.target.id);
     }, false);
     document.addEventListener('dragstart', (event) => {
         dragged = event.target;
-        dragged.style.opacity = .5;
-        if (invertedBoard){
-            /// cannot figure out how to invert the drag drop when it inverts
-            dragged.style.display = "none";
-        }
+        dragged.style.opacity = .2;
+        // if (invertedBoard){
+        //     /// cannot figure out how to invert the drag drop when it inverts
+        //     //dragged.style.display = "none";
+        // }
     }, false);
     document.addEventListener("dragover", function (event) {
         event.preventDefault();
@@ -164,7 +165,7 @@ function addListeners() {
     });
 
     document.addEventListener('touchmove', (event) => {
-        event.preventDefault();
+        //event.preventDefault();
         let touch = event.targetTouches[0];
         if (!touch.target.classList.contains("checkerpiece")){
             return;
