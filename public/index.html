@@ -7,18 +7,82 @@
 	<link rel="stylesheet" type="text/css" href="./css/main.css">
 	<meta name="viewport" content="width=device-width, user-scalable=no" />
 </head>
+<!-- Menu  header -->
+<header>
+    <div class="dropdown">
+        <div onclick="showMenu()" class="dropbtn"><img src="images/menu_icon.png" class="dropbtnimg" alt="menu" onclick="showMenu()"></div>
+        <div id="myDropdown" class="dropdown-content dropMenuItem">
+            <!-- <br>
+            <div id="showMenu" onClick="logOut()" class="dropMenuItem">Log-off/on</div> -->
+            <!-- <br>
+            <div id="selectAnotherPlayer" onClick="alert('not yet implemented ')" class="dropMenuItem">Not implemented</div> -->
+            <br>
+            <div id="colorDropDown" onClick="showMenu('color_menu')" class="dropMenuItem">Select background color...
+                <div id="color_menu" style="display: none;">
+                    <a href="#" onclick="changeBackgroundColor('red')" style='background-color:red;'>Red</a>
+                    <a href="#" onclick="changeBackgroundColor('orange')" style='background-color:orange;'>Orange</a>
+                    <a href="#" onclick="changeBackgroundColor('yellow')" style='background-color:yellow;'>Yellow</a>
+                    <a href="#" onclick="changeBackgroundColor('green')" style='background-color:green;'>Green</a>
+                    <a href="#" onclick="changeBackgroundColor('blue')" style='background-color:blue;'>Blue</a>
+                    <a href="#" onclick="changeBackgroundColor('indigo')" style='background-color:indigo;'>Indigo</a>
+                    <a href="#" onclick="changeBackgroundColor('violet')" style='background-color:violet;'>Violet</a>
+                    <a href="#" onclick="changeBackgroundColor('sienna')" style='background-color:sienna;'>Sienna</a>
+                    <a href="#" onclick="changeBackgroundColor('gray')" style='background-color:gray;'>Gray</a>
+                    <a href="#" onclick="changeBackgroundColor('black')" style='background-color:black; color:whitesmoke;'>Black</a>
+                    <a href="#" onclick="changeBackgroundColor('teal')" style='background-color:teal;'>Teal</a>
+                    <a href="#" onclick="changeBackgroundColor('pink')" style='background-color:pink;'>Pink</a>
+                    <a href="#" onclick="changeBackgroundColor('steelblue')"
+                        style='background-color:steelblue;'>SteelBlue</a>
+                    <a href="#" onclick="changeBackgroundColor('YellowGreen')"
+                        style='background-color:YellowGreen;'>YellowGreen</a>
+                    <a href="#" onclick="changeBackgroundColor('Maroon')" style='background-color:Maroon;'>Maroon</a>
+                    <a href="#" onclick="changeBackgroundColor('SkyBlue')" style='background-color:SkyBlue;'>SkyBlue</a>    
+                    <a href="#" onclick="changeBackgroundColor('palegreen')" style='background-color:palegreen;'>PaleGreen</a>                           
+                </div>
+            </div>
+            <!-- <br> -->
+            <!-- <div id="playSolo" onClick="standAloneGenBoard()" class="dropMenuItem">Play Solo</div> -->
+
+        </div>
+    </div>
+    <div id="menu_txt" class="menu_txt">
+        CHECKERS
+    </div>
+</header>
+<!-- this will just put the other stuff below the header/nav bar-->
+<div style class="menu-spacer-div"></div>
+<!-- End menu -->
 <body>
-	<div id="checkerboard" draggable = "false" class="square-box"></div>
+	<div id="checkerboard" draggable = "false" class="square-box" style="display:none;"></div>
 
-    <div class="modal" id="modal_div" style="display:none">
+    <!-- <div class="modal" id="modal_div" style="display:none">
         <div id="modal_msg" class="modal_msg"></div>
-	</div>
+	</div> -->
 
+	<div id="messageDiv" class="messageDiv" style = "display:none;"></div>
+
+	<!-- this is the dive used by touch devices -->
 	<div id="touchDragDiv" class="dragItem"></div>
 
+	<!-- initial login div -->
+    <div id="login_div" class="login_div">
+        <h1>How about a name?</h1>
+        <label for="loginname">Name:</label>
+		<br>
+        <input type="text" placeholder="Enter Name" name="loginname" id="playerName" required>
+		<br>
+		<br>
+		<a href="#" id="login_btn" class="login_button" onclick="init();">Play someone...</a>
+		<!-- <a href="#" id="login_btn" class="login_button" onclick="alert('not yet implemented :(');">See player list...</a> -->
+    </div>
+
+
 	<script src="/socket.io/socket.io.js"></script>
-	<script type="application/javascript" src="./js/socketStuff.js"></script>
-	<script type="application/javascript" src="./js/canvasStuff.js"></script>
+	<script type="application/javascript" src="./js/common.js"></script>	
+	<script type="application/javascript" src="./js/socketStuff.js"></script>	
+	<script type="application/javascript" src="./js/canvasStuff.js"></script>	
+
+
 </body>
 
 </html>

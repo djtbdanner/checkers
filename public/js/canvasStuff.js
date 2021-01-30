@@ -1,5 +1,6 @@
 function drawCheckerBoard() {
-    let checkerboard = document.getElementById("checkerboard");
+    loginDiv.style.display = "none";
+    checkerboard.style.display = "block";
     let table = document.createElement("table");
     table.draggable = false;
     let row;
@@ -36,7 +37,7 @@ function drawCheckerBoard() {
     checkerboard.appendChild(table);    
     addListeners();
 }
-init();
+//init();
 
 function invertBoard(){
     let checkerboard = document.getElementById("checkerboard");
@@ -67,6 +68,7 @@ function addPieces(playerPieces, clearPiecesFirst) {
             appendImage(square, imgName);
         });
     }
+    playSlideSoundOnMovePiece = true;
 }
 
 function appendImage(square, image) {
@@ -85,7 +87,7 @@ function appendImage(square, image) {
     square.appendChild(img);
 }
 
-
+let playSlideSoundOnMovePiece = true;
 function movePiece(pieceData) {
     let data = JSON.parse(pieceData);
     let piece = document.getElementById(data.piece);
@@ -99,6 +101,10 @@ function movePiece(pieceData) {
     //    console.log(JSON.stringify(data) + `x = ${x}, y = ${y}, percent =${percent} otherwidth =${otherWidth} width = ${checkerBoardWidth}`);
     piece.style.top = y + "px";
     piece.style.left = x + "px";
+    if (playSlideSoundOnMovePiece){
+        slide.play();
+    }
+    playSlideSoundOnMovePiece = false;
 }
 
 function addListeners() {
@@ -111,14 +117,11 @@ function addListeners() {
         }
         dragged.style.display = "block";
         sendDrop(dragged, event.target.id);
+        tap.play();
     }, false);
     document.addEventListener('dragstart', (event) => {
         dragged = event.target;
-        dragged.style.opacity = .2;
-        // if (invertedBoard){
-        //     /// cannot figure out how to invert the drag drop when it inverts
-        //     //dragged.style.display = "none";
-        // }
+        dragged.style.opacity = .5;
     }, false);
     document.addEventListener("dragover", function (event) {
         event.preventDefault();
@@ -141,10 +144,12 @@ function addListeners() {
         if (event.target.style) {
             event.target.style.opacity = "";
             dragged.style.opacity = .5;
+            slide.play();
         }
     }, false);
 
     let touchDragDiv = document.getElementById('touchDragDiv');
+    let playSlideSound = true;
     /// Touch events for devices
     document.addEventListener('touchend', (event) => {
         // console.log("touchend");
@@ -162,6 +167,9 @@ function addListeners() {
             });
         }
         sendDrop(touchLocation.target, destination.id);
+        tap.play();
+        playSlideSound = true;
+
     });
 
     document.addEventListener('touchmove', (event) => {
@@ -188,6 +196,11 @@ function addListeners() {
         }
         let data = { piece: touch.target.id, x: pageX, y: pageY, boardWidth: checkerBoardWidthX };
         sendXY(data);
+
+        if (playSlideSound){
+            slide.play();
+        }
+        playSlideSound = false;
     });
 
 }
@@ -202,7 +215,7 @@ function fade(element) {
         element.style.opacity = op;
         element.style.filter = 'alpha(opacity=' + op * 100 + ")";
         op -= op * 0.1;
-    }, 100);
+    }, 1000);
 }
 
 function unfade(element) {

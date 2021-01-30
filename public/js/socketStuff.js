@@ -1,19 +1,21 @@
-var url = window.location.href;
-let socket = io.connect(url);
-// intended globals
-// checkerBoardWidthX Height used in move calculations to determine distance size, etc. (they should be same)
-let checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
-let checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
-// playerNumber used to determine the direction of the board and such.
-let invertedBoard = false;
-
 function init() {
     drawCheckerBoard();
+    let playerName = playerNameElement.value;
+    console.log(playerName)
     checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
     checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
     socket.emit('init', {
-        playerName: "getRealName"
+        playerName
     });
+    /// save the user name
+    if (typeof (Storage) !== "undefined") {
+        try {
+            localStorage.setItem("s-playerName", playerName);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
 }
 
 socket.on('initReturn', (data) => {
@@ -41,10 +43,11 @@ socket.on('updateBoard', (data) => {
 
 socket.on('flashMessage', (data) => {
     let message = data.message;
-    let div = document.getElementById("modal_div");
+    let div = document.getElementById("messageDiv");
     div.style.display = "block";
-    document.getElementById("modal_msg").innerHTML = message;
-    fade(div);
+    div.innerHTML = message;
+    console.log(message)
+    //fade(div);
 });
 
 /*
@@ -61,8 +64,6 @@ function sendXY(data) {
 }
 
 function sendDrop(piece, targetId){
-    // console.log(targetId);
-    // console.log(piece);
     socket.emit('drop', {targetId:targetId, pieceId: piece.id});
 }
 

@@ -19,9 +19,11 @@ io.sockets.on('connect', (socket) => {
         let connected = true;
         playerName = data.playerName;
         if (aGame === undefined) {
-            setUpPlayerOne(socket, "PLAYER ONE", aGame);
+            let name = playerName===""?"PlayerOne":playerName;
+            setUpPlayerOne(socket, name, aGame);
         } else {
-            setUpPlayerTwo(socket, "PLAYER TWO", aGame);
+            let name = playerName===""?"PlayerTwo":playerName;
+            setUpPlayerTwo(socket, name, aGame);
         }
     });
 
@@ -40,6 +42,7 @@ io.sockets.on('connect', (socket) => {
         let game = vals.game;
         thisPlayer = game.getPlayerBySocket(socket.id);
         otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
+        let displayTurns = true;
         if (otherPlayerSocketId != undefined) {
             let origin = data.pieceId.replace("img_", "");
             const index = thisPlayer.pieces.findIndex(el => el.location === origin);
@@ -52,16 +55,28 @@ io.sockets.on('connect', (socket) => {
             let message = vals.message;
             if (message) {
                 socket.emit('flashMessage', { message: `Invalid Move:  ${message}, please try again.` });
+                displayTurns = false;
             }
         }
         /// update board for both players - game board is updated in above process
-        thisPlayer = game.getPlayerBySocket(socket.id);
-        otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
+        // thisPlayer = game.getPlayerBySocket(socket.id);
+        // otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
         socket.emit('updateBoard', { player1: JSON.stringify(game.getPlayerBySocket(socket.id)), player2: JSON.stringify(otherPlayer) });
         socket.to(otherPlayerSocketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
         if (thisPlayer.winner){
             socket.emit('flashMessage', { message: `YOU WIN!!!!` });
             socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Sorry, you loose. Better luck next time!` });
+        } else {
+            if (displayTurns){
+
+                if (thisPlayer.turn){
+                    socket.emit('flashMessage', { message: `Your turn.` });
+                    socket.to(otherPlayerSocketId).emit('flashMessage', { message: `${thisPlayer.getPossesiveName()} turn.` });
+                } else {
+                    socket.emit('flashMessage', { message: `${otherPlayer.getPossesiveName()} turn.` });
+                    socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Your turn.` });
+                }
+            }
         }
     });
 });
@@ -105,9 +120,9 @@ function setUpPlayerTwo(socket, playerName, aGame) {
     player = new Player(socket.id, pieces, playerName);
     socket.emit('initReturn', { player: JSON.stringify(player) });
     socket.emit('initReturn', { player: JSON.stringify(aGame.player1) });
-    socket.emit('flashMessage', { message: `Playing ${aGame.player1.name}, you are player 2 (red).` });
+    socket.emit('flashMessage', { message: `Playing ${aGame.player1.name}, you are playing red pieces. It is ${aGame.player1.getPossesiveName()} turn first.` });
     socket.to(aGame.player1.socketId).emit('initReturn', { player: JSON.stringify(player) });
-    socket.to(aGame.player1.socketId).emit('flashMessage', { message: `Playing ${player.name}, you are player 1 (black).` });
+    socket.to(aGame.player1.socketId).emit('flashMessage', { message: `Playing ${player.name}, you are playing black pieces. It is your turn first.` });
     aGame.player2 = player;
     //console.log('\n\n\n' + JSON.stringify(aGame));
     // invert board for player 2 so their side is facing them
@@ -136,6 +151,7 @@ function setUpPlayerOne(socket, playerName, game) {
     player = new Player(socket.id, pieces, playerName);
     player.turn = true;
     socket.emit('initReturn', { player: JSON.stringify(player) });
+    socket.emit('flashMessage', { message: `Waiting on another player to join.` });
     game = new Game(player, undefined);
     games.push(game);
 }

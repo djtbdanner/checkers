@@ -15,7 +15,12 @@ class Player{
         this.winner = false;
     }
 
-    
+    getPossesiveName(){
+        if (this.name && this.name.endsWith('s')){
+            return `${this.name}'`;
+        }
+        return `${this.name}'s`;
+    }
 }
 
 module.exports = Player

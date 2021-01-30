@@ -1,7 +1,6 @@
 :root {
-  --default-color: white;
+  --default-color: palegreen;
 }
-
 
 .flip{
   transform: rotate(180deg);
@@ -15,8 +14,19 @@
   }
   .square-box{
     width: 98%;
+    height: 98vw;
+    /* margin-left: 1vw;
+    margin-right: 1vw;
+    padding: 2vw; */
     border-radius: 2px;
     border-width: 5px;
+
+  }
+  .messageDiv{
+    height: 24px;
+    font-size: 19px;
+    margin-top: 30px;
+    text-shadow:1px 1px 4px black;
   }
  }
 
@@ -26,10 +36,16 @@
     --shadow: 2px 2px 0px var(--default-color);
   }
   .square-box{
-    width: 49%;
+    width: 50vw;
+    height: 50vw;
     float: left;
     border-radius: 5px;
     border-width: 5px;
+  }
+  .messageDiv{
+    height: 70px;
+    font-size: 40px;
+    text-shadow: 4px 4px 4px black;
   }
 }
 table{
@@ -56,11 +72,11 @@ table{
   border-top-color: #ddd;
   border-left-color: #ddd; 
 }
-.square-box:before{
+/* .square-box:before{
   content:"";
   display: block;
   padding-top: 100%;
-}
+} */
 tr{
   margin:0!important;
   padding:0!important;
@@ -83,6 +99,8 @@ body {
   border: 0px !important;
   cursor:move;
   /* position:absolute; */
+  pointer-events: all;
+  /* user-select: ;	 */
 
 }
 
@@ -94,7 +112,183 @@ body {
   padding: 0px 10px 0px 10px;
 }
 
-.modal{
+
+/* -- from sudoku -- */
+a {
+  font: 12px'lucida sans', 'trebuchet MS', 'Tahoma';
+  padding-left:5px;
+  font-weight: bold;
+  color: var(--default-color);
+}
+
+h1{
+  font-size: 18px;
+  padding-left: 10px;
+  padding-top:5px;
+}
+
+.login_div{
+  background-color: white;
+   border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) inset, 0 1px 0 rgba(255, 255, 255, 1);
+  width:100%;
+  padding-bottom:20px;
+  align-self: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+label{
+  padding: 8px;
+  /* margin: 10px; */
+  font: bold 16px'lucida sans', 'trebuchet MS', 'Tahoma';
+  background:transparent;
+}
+
+input{
+  padding: 8px 5px;
+  margin: 10px;
+  font: bold 16px'lucida sans', 'trebuchet MS', 'Tahoma';
+  border: 1px solid var(--default-color);
+  background: #f1f1f1;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) inset, 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.login_button{
+  padding: 8px 5px;
+  margin:10px;
+  font: bold 12px'lucida sans', 'trebuchet MS', 'Tahoma';
+  border: 1px solid var(--default-color);
+  background: blanchedalmond;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) inset, 0 1px 0 rgba(255, 255, 255, 1);
+  text-decoration: none;
+  color:black;
+}
+
+.messageDiv {
+  align-self: center;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: var(--default-color);
+  display: none;
+  color: white;
+  text-align: center;
+  width: 95%;
+}
+
+/* Drop Down menu style stuff */
+header {
+  background: #fff;
+  width: 100%;
+  height: 25px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-bottom: 4px solid #4C9CF1;
+  z-index: 100;
+}
+
+.menu_txt{
+  color: var(--default-color);
+  float: right;
+  margin-right:35px;
+  margin-top:1px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.dropbtn {
+  border-top-right-radius: 5px;
+  /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) inset, 0 1px 0 rgba(255, 255, 255, 1); */
+  background-color:#4C9CF1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: white;
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-right: 10px;
+  /* font-size: 18px; */
+  border: none;
+  cursor: pointer;
+  height:15px;
+}
+.dropbtnimg{
+  height:15px;
+  width:15px;
+}
+
+.dropMenuItem{
+  cursor: pointer;
+  font-size: 16px;
+  /* border-top: solid black; */
+  box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.2);
+}
+
+/* dropdown {
+  position: relative;
+  display: inline-block;
+} */
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 180px;
+  /* overflow: auto; */
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  text-decoration: none;
+  display: block;
+  font-size: 10px;
+  padding: 3px;
+  text-decoration: none;
+  border-style: solid;
+  border-bottom-color: #aaa;
+  border-right-color: #aaa;
+  border-top-color: #ddd;
+  border-left-color: #ddd;
+  border-radius: 7px;
+  text-align: center;
+  align-content: center;
+  color: black;
+  text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+}
+
+.dropdown-content div {
+  color: black;
+  /* margin:10px; */
+  padding:5px;
+  /* text-decoration: none; */
+  display: block;
+  /* width:100%; */
+}
+.dropdown div:hover {background-color: #ddd;}
+/* .dropdown a:hover {background-color: #ddd;} */
+
+.show {display: block;}
+
+/* spacer so menu doesn't cover stuff */
+.menu-spacer-div{
+  height: 26px;
+}
+
+img {
+  /* display: block;
+  margin-left: auto;
+  margin-right: auto;
+  mix-blend-mode: multiply;
+  color: black; */
+  pointer-events: none;
+  user-select: none;	
+}
+/* .modal{
   width:100%;
   height:100%;
   position: absolute;
@@ -119,7 +313,6 @@ body {
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
-
 #fadeMe {
   opacity: 1;
   transition: opacity 1s; 
@@ -127,6 +320,6 @@ body {
 
 #fadeMe.fade {
   opacity: 0;
-}
+} */
 
 
