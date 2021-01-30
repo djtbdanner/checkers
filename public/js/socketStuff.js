@@ -37,6 +37,7 @@ socket.on('updateBoard', (data) => {
         if (data.player2){
             player = JSON.parse(data.player2);
             addPieces(player.pieces, false);
+            tap.play();
         }
     }
 });
