@@ -33,7 +33,7 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
     if (!piece.king) {
         let rowsMoved = originInts[0] - destinationInts[0];
         if (rowsMoved > 0 && !currentPlayer.decending || rowsMoved < 1 && currentPlayer.decending) {
-            return { game, message: `you cannot move that direction unless your piece has been "kinged"` };
+            return { game, message: `You cannot move that direction unless your piece is "kinged"` };
         }
     }
 
@@ -44,17 +44,19 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
     if (Math.abs(originInts[0] - destinationInts[0]) > 1 || Math.abs(originInts[1] - destinationInts[1]) > 1) {
         didJump = validateAndProcesPlayerJump(originInts, destinationInts, game, currentPlayer);
         if (!didJump) {
-            return { game, message: `you cannot move more than one row at a time unless you are jumping an opponent piece` };
+            return { game, message: `You cannot move more than one row at a time` };
         }
     }
 
     // if a jump is required, be sure one was done.
     if (mustJump && !didJump) {
-        return { game, message: `at least one jump move is on the board and you must do a jump if one is available` };
+        return { game, message: `You have at least one jump on the board` };
     }
 
+    let kinged = false;
     if (!piece.king) {
         piece.king = kingMe(currentPlayer, destinationInts);
+        kinged = piece.king;
     }
     piece.location = destination;
 
@@ -67,7 +69,7 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
         currentPlayer.winner = true;
     }
 
-    return { game, message: undefined };
+    return { game, message: undefined, kinged };
 }
 
 function getSquaresAsInts(destination, origin) {

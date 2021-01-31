@@ -122,9 +122,8 @@ function addListeners() {
         if (event.target.style) {
             event.target.style.opacity = "";
         }
-        dragged.style.display = "block";
+        //dragged.style.display = "block";
         sendDrop(dragged, event.target.id);
-        tap.play();
     }, false);
     document.addEventListener('dragstart', (event) => {
         dragged = event.target;
@@ -177,7 +176,6 @@ function addListeners() {
             });
         }
         sendDrop(touchLocation.target, destination.id);
-        tap.play();
         playSlideSound = true;
     });
 

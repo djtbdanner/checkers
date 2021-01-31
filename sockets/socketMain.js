@@ -50,6 +50,7 @@ io.sockets.on('connect', (socket) => {
         thisPlayer = game.getPlayerBySocket(socket.id); 
         otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
         let displayTurns = true;
+        let kinged = false;
         if (otherPlayerSocketId != undefined) {
             let origin = data.pieceId.replace("img_", "");
             const index = thisPlayer.pieces.findIndex(el => el.location === origin);
@@ -60,18 +61,23 @@ io.sockets.on('connect', (socket) => {
             vals = ProcessMove.validateAndProcessPlayerMove(game, thisPlayer, origin, data.targetId);
             game = vals.game;
             let message = vals.message;
+            kinged = vals.kinged;
             if (message) {
-                socket.emit('flashMessage', { message: `Invalid Move:  ${message}, please try again.` });
+                socket.emit('flashMessage', { message: `Invalid Move:  ${message}.` });
                 displayTurns = false;
             }
         }
-        /// update board for both players - game board is updated in above process
-        // thisPlayer = game.getPlayerBySocket(socket.id);
-        // otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
+        let sound = "tap";
+        if (kinged){
+            sound = "king";
+        }
         socket.emit('updateBoard', { player1: JSON.stringify(game.getPlayerBySocket(socket.id)), player2: JSON.stringify(otherPlayer) });
         socket.to(otherPlayerSocketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
+        socket.emit('playSound', { sound });
+        socket.to(otherPlayerSocketId).emit('playSound', { sound });
         if (thisPlayer.winner) {
             socket.emit('flashMessage', { message: `YOU WIN!!!!` });
+            socket.emit('playSound', { sound: `cheer` });
             socket.to(otherPlayerSocketId).emit('flashMessage', { message: `You lost this time. Better luck next time!` });
         } else {
             if (displayTurns) {

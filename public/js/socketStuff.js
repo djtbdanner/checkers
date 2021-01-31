@@ -49,7 +49,6 @@ socket.on('updateBoard', (data) => {
         if (data.player2){
             player = JSON.parse(data.player2);
             addPieces(player.pieces, false);
-            tap.play();
         }
     }
 });
@@ -58,6 +57,19 @@ socket.on('flashMessage', (data) => {
     let message = data.message;
     messageDiv.style.display = "block";
     messageDiv.innerHTML = message;
+});
+
+socket.on('playSound', (data) => {
+    let sound = data.sound;
+    if (sound === "king"){
+        king.play();
+    }
+    if (sound === "cheer"){
+        cheer.play();
+    }
+    if (sound === "tap"){
+        tap.play();
+    }    
 });
 
 /*

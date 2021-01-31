@@ -12,6 +12,8 @@ let invertedBoard = false;
 // sounds
 var tap = new Audio('/sounds/tap.mp3');
 var slide = new Audio('/sounds/slide.mp3');
+var king = new Audio('/sounds/king.mp3');
+var cheer = new Audio('/sounds/cheer.mp3');
 
 /// divs and fields and such
 const loginDiv = document.getElementById('login_div');
