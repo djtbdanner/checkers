@@ -1,7 +1,7 @@
 function init() {
     drawCheckerBoard();
+    addListeners();
     let playerName = playerNameElement.value;
-    console.log(playerName)
     checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
     checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
     socket.emit('init', {
@@ -21,6 +21,18 @@ function init() {
 socket.on('initReturn', (data) => {
     let player = JSON.parse(data.player);
     addPieces(player.pieces, false);
+});
+
+// reinitilaze game - likely due to other player leaving
+socket.on('reInitReturn', (data) => {
+    if (invertedBoard){
+        invertBoard();
+    }
+    drawCheckerBoard();
+    checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
+    checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
+    let player = JSON.parse(data.player);
+    addPieces(player.pieces, true);
 });
 
 socket.on('invertBoard', (data) => {
@@ -44,11 +56,8 @@ socket.on('updateBoard', (data) => {
 
 socket.on('flashMessage', (data) => {
     let message = data.message;
-    let div = document.getElementById("messageDiv");
-    div.style.display = "block";
-    div.innerHTML = message;
-    console.log(message)
-    //fade(div);
+    messageDiv.style.display = "block";
+    messageDiv.innerHTML = message;
 });
 
 /*
@@ -66,6 +75,14 @@ function sendXY(data) {
 
 function sendDrop(piece, targetId){
     socket.emit('drop', {targetId:targetId, pieceId: piece.id});
+}
+
+function disconnect(){
+    socket.disconnect();
+}
+
+function reconnect(){
+    socket.connect();
 }
 
 socket.on('otherPlayerMove', (data)=>{

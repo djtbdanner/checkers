@@ -44,5 +44,10 @@ class Game {
         }
         return pieces;
     }
+
+    removePlayers(){
+        this.player1 = undefined;
+        this.player2 = undefined;
+    }
 }
 module.exports = Game

@@ -1,5 +1,7 @@
 :root {
   --default-color: palegreen;
+  --play-square-color: #9B1517;
+  --off-square-color: gray;
 }
 
 .flip{
@@ -36,8 +38,8 @@
     --shadow: 2px 2px 0px var(--default-color);
   }
   .square-box{
-    width: 50vw;
-    height: 50vw;
+    width: 95vh;
+    height: 95vh;
     float: left;
     border-radius: 5px;
     border-width: 5px;
@@ -58,6 +60,7 @@ table{
   right: 0;
   border-spacing: 0;
   border-collapse: collapse;
+  -webkit-user-drag: none;
 }
 
 /* border around the board */
@@ -71,6 +74,7 @@ table{
   border-right-color: #aaa;
   border-top-color: #ddd;
   border-left-color: #ddd; 
+  -webkit-user-drag: none;
 }
 /* .square-box:before{
   content:"";
@@ -81,14 +85,17 @@ tr{
   margin:0!important;
   padding:0!important;
   border:0!important;  
+  -webkit-user-drag: none;
 }
 td {
   margin:0!important;
   padding:0!important;
   border:0!important;
+  -webkit-user-drag: none;
 }
 body {
   background: var(--default-color);
+  -webkit-user-drag: none;
 }
 
 .checkerpiece {
@@ -102,6 +109,12 @@ body {
   pointer-events: all;
   /* user-select: ;	 */
 
+}
+.playsquare{
+ background-color: var(--play-square-color);
+}
+.offsquare{
+  background-color: var(--off-square-color);
 }
 
 .dragItem {

@@ -1,7 +1,12 @@
 function drawCheckerBoard() {
     loginDiv.style.display = "none";
     checkerboard.style.display = "block";
+    let existingTable = document.getElementById("ch_table");
+    if (existingTable){
+        existingTable.remove();
+    }
     let table = document.createElement("table");
+    table.id = "ch_table"
     table.draggable = false;
     let row;
     let rowNumber = 0;
@@ -16,17 +21,15 @@ function drawCheckerBoard() {
         var tableData = document.createElement("td");
         if (rowNumber % 2 === 0) {
             if (i % 2 === 0) {
-                tableData.style.backgroundColor = "#9B1517";
-                // tableData.draggable = true;
+                tableData.className = "playsquare";
             } else {
-                tableData.style.backgroundColor = "gray";
+                tableData.className = "offsquare";
             }
         } else {
             if (i % 2 != 0) {
-                tableData.style.backgroundColor = "#9B1517";
-                //   tableData.draggable = true;
+                tableData.className = "playsquare";
             } else {
-                tableData.style.backgroundColor = "gray";
+                tableData.className = "offsquare";
             }
         }
         tableData.innerHTML = '&nbsp;';
@@ -35,13 +38,17 @@ function drawCheckerBoard() {
         row.appendChild(tableData);
     }
     checkerboard.appendChild(table);    
-    addListeners();
+    // addListeners();
 }
 //init();
 
 function invertBoard(){
     let checkerboard = document.getElementById("checkerboard");
-    checkerboard.classList.add("flip");
+    if(invertedBoard){
+        checkerboard.classList.remove("flip");
+    } else {
+        checkerboard.classList.add("flip");
+    }
     invertedBoard = !invertedBoard;
 }
 
@@ -152,7 +159,10 @@ function addListeners() {
     let playSlideSound = true;
     /// Touch events for devices
     document.addEventListener('touchend', (event) => {
-        // console.log("touchend");
+        //console.log("touchend");
+        if (touchDragDiv.style.display === "none"){
+            return;
+        }
         var touchLocation = event.changedTouches[0];
         var pageX = touchLocation.pageX;
         var pageY = touchLocation.pageY;
@@ -169,12 +179,13 @@ function addListeners() {
         sendDrop(touchLocation.target, destination.id);
         tap.play();
         playSlideSound = true;
-
     });
 
     document.addEventListener('touchmove', (event) => {
         //event.preventDefault();
+        //console.log("touchmove");
         let touch = event.targetTouches[0];
+        console.log(touch.target.classList);
         if (!touch.target.classList.contains("checkerpiece")){
             return;
         }
@@ -203,30 +214,4 @@ function addListeners() {
         playSlideSound = false;
     });
 
-}
-
-function fade(element) {
-    var op = 1;  // initial opacity
-    var timer = setInterval(function () {
-        if (op <= 0.1) {
-            clearInterval(timer);
-            element.style.display = 'none';
-        }
-        element.style.opacity = op;
-        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-        op -= op * 0.1;
-    }, 1000);
-}
-
-function unfade(element) {
-    var op = 0.1;  // initial opacity
-    element.style.display = 'block';
-    var timer = setInterval(function () {
-        if (op >= 1) {
-            clearInterval(timer);
-        }
-        element.style.opacity = op;
-        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-        op += op * 0.1;
-    }, 10);
 }

@@ -13,11 +13,12 @@ let invertedBoard = false;
 var tap = new Audio('/sounds/tap.mp3');
 var slide = new Audio('/sounds/slide.mp3');
 
-/// divs an fields and such
+/// divs and fields and such
 const loginDiv = document.getElementById('login_div');
-let checkerboard = document.getElementById("checkerboard");
-let playerNameElement = document.getElementById("playerName");
-let loginButton = document.getElementById("login_btn");
+const checkerboard = document.getElementById("checkerboard");
+const playerNameElement = document.getElementById("playerName");
+const loginButton = document.getElementById("login_btn");
+const messageDiv = document.getElementById("messageDiv");
 
 function showMenu(id) {
     if (id == undefined) {
@@ -34,6 +35,30 @@ function changeBackgroundColor(color) {
     if (typeof (Storage) !== "undefined") {
         try {
             localStorage.setItem("s-color", color);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
+
+function changePlaysquareColor(color) {
+    let root = document.documentElement;
+    root.style.setProperty('--play-square-color', color);
+    if (typeof (Storage) !== "undefined") {
+        try {
+            localStorage.setItem("s-playsquare-color", color);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
+
+function changeOffsquareColor(color) {
+    let root = document.documentElement;
+    root.style.setProperty('--off-square-color', color);
+    if (typeof (Storage) !== "undefined") {
+        try {
+            localStorage.setItem("s-offsquare-color", color);
         } catch (err) {
             console.log(err);
         }
@@ -66,13 +91,33 @@ playerNameElement.addEventListener("keyup", event => {
     event.preventDefault();
 });
 
+function logOut(){
+    disconnect();
+    loginDiv.style.display = "block";
+    checkerboard.style.display = "none";
+    checkerboard.style.display = "none";
+    messageDiv.style.display = "none";
+    messageDiv.innerHTML = "";
+    closeMenu();
+    reconnect();
+    
+}
+
 function getLocalStorage() {
     if (typeof (Storage) !== 'undefined') {
         try {
+            let root = document.documentElement;
             let color = localStorage.getItem('s-color');
             if (color !== undefined && color != null) {
-                let root = document.documentElement;
                 root.style.setProperty('--default-color', color);
+            }
+            color = localStorage.getItem('s-offsquare-color');
+            if (color !== undefined && color != null) {
+                root.style.setProperty('--off-square-color', color);
+            }
+            color = localStorage.getItem('s-playsquare-color');
+            if (color !== undefined && color != null) {
+                root.style.setProperty('--play-square-color', color);
             }
             let name = localStorage.getItem('s-playerName');
             if (name != undefined && name != null) {
@@ -86,9 +131,9 @@ function getLocalStorage() {
 getLocalStorage();
 
 function focusOnName(){
-    playerNameElement.focus(); //sets focus to element
-    var val = playerNameElement.value; //store the value of the element
-    playerNameElement.value = ''; //clear the value of the element
-    playerNameElement.value = val; //set that value back. 
+    playerNameElement.focus(); 
+    var val = playerNameElement.value; 
+    playerNameElement.value = ''; 
+    playerNameElement.value = val; 
 }
 focusOnName(); 

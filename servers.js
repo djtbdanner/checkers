@@ -7,7 +7,7 @@ const expressServer = app.listen(8080);
 const io = socketio(expressServer);
 const helmet = require('helmet')
 app.use(helmet());
-console.log("Express and socketio are listening on port 8080");
+console.log("Express and socket-io are listening on port 8080");
 
 // App organization
 module.exports = {
