@@ -1,11 +1,21 @@
 // intended globals
-
 var url = window.location.href;
 let socket = io.connect(url);
 
+/// divs and fields and such
+const loginDiv = document.getElementById('login_div');
+const checkerboard = document.getElementById("checkerboard");
+const playerNameElement = document.getElementById("playerName");
+const storedPlayerNameElement = document.getElementById("storedPlayerName");
+const storedPlayerIdElement = document.getElementById("storedPlayerId");
+const messageDiv = document.getElementById("messageDiv");
+const poolDiv = document.getElementById("poolDiv");
+const poolInfoDiv = document.getElementById("poolInfo");
+const poolButton = document.getElementById("pool_btn");
+
 // checkerBoardWidthX Height used in move calculations to determine distance size, etc. (they should be same)
-let checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
-let checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
+let checkerBoardWidthX = checkerboard.offsetWidth;
+let checkerBoardHeightY = checkerboard.offsetWidth;
 // playerNumber used to determine the direction of the board and such.
 let invertedBoard = false;
 
@@ -15,19 +25,30 @@ var slide = new Audio('/sounds/slide.mp3');
 var king = new Audio('/sounds/king.mp3');
 var cheer = new Audio('/sounds/cheer.mp3');
 
-/// divs and fields and such
-const loginDiv = document.getElementById('login_div');
-const checkerboard = document.getElementById("checkerboard");
-const playerNameElement = document.getElementById("playerName");
-const loginButton = document.getElementById("login_btn");
-const messageDiv = document.getElementById("messageDiv");
-
 function showMenu(id) {
     if (id == undefined) {
         document.getElementById("myDropdown").classList.toggle("show");
     } else {
         theStyle = document.getElementById(id);
         theStyle.style.display === 'none' ? theStyle.style.display = 'block' : theStyle.style.display = 'none';
+    }
+}
+  
+function changeSelectedColor(color){
+    const rbs = document.querySelectorAll('input[name="section-to-color"]');
+    let selectedValue;
+    for (const rb of rbs) {
+        if (rb.checked) {
+            selectedValue = rb.id;
+            break;
+        }
+    }
+    if ("play-square-color" === selectedValue){
+        changePlaysquareColor(color);
+    } else if ("no-play-square-color" === selectedValue){
+        changeOffsquareColor(color);
+    } else {
+        changeBackgroundColor(color);
     }
 }
 
@@ -89,20 +110,34 @@ function closeMenu() {
 
 playerNameElement.addEventListener("keyup", event => {
     if (event.key !== "Enter") return;
-    loginButton.click();
+    poolButton.click();
     event.preventDefault();
 });
 
 function logOut(){
+    clearInterval(updatePool);
     disconnect();
+    poolDiv.style.display = "none";
+    checkerboard.style.display = "none";
+    loginDiv.style.display = "none";
+    messageDiv.style.display = "block";
+    messageDiv.innerHTML = "You have been logged out. Click Home on the menu to reconnect.";
+    storedPlayerIdElement.value = "";
+    storedPlayerNameElement.value = "";
+    closeMenu();
+}
+
+function logIn(){
+    clearInterval(updatePool);
+    disconnect();    
+    reconnect();
+    poolDiv.style.display = "none";
+    checkerboard.style.display = "none";
     loginDiv.style.display = "block";
-    checkerboard.style.display = "none";
-    checkerboard.style.display = "none";
     messageDiv.style.display = "none";
     messageDiv.innerHTML = "";
     closeMenu();
-    reconnect();
-    
+    playerNameElement.focus();
 }
 
 function getLocalStorage() {

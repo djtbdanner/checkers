@@ -1,8 +1,10 @@
 function drawCheckerBoard() {
+    clearInterval(updatePool);
     loginDiv.style.display = "none";
+    poolDiv.style.display = "none";
     checkerboard.style.display = "block";
     let existingTable = document.getElementById("ch_table");
-    if (existingTable){
+    if (existingTable) {
         existingTable.remove();
     }
     let table = document.createElement("table");
@@ -37,14 +39,43 @@ function drawCheckerBoard() {
         columnNumber = columnNumber + 1;
         row.appendChild(tableData);
     }
-    checkerboard.appendChild(table);    
-    // addListeners();
+    checkerboard.appendChild(table);
 }
-//init();
 
-function invertBoard(){
+let updatePool;
+function drawPlayerPool(players) {
+    loginDiv.style.display = "none";
+    checkerboard.style.display = "none";
+    messageDiv.style.display = "none";
+    messageDiv.innerHTML = "";
+    poolDiv.style.display = "block";
+
+    let notThisplayers = players.filter((p) => { return p.id !== storedPlayerIdElement.value });
+    let thisPlayer = players.filter((p) => { return p.id === storedPlayerIdElement.value });
+    htmlString = "";
+    if (notThisplayers.length > 0) {
+        let playerName = "Player ";
+        if (thisPlayer && thisPlayer.length > 0){
+            playerName = thisPlayer[0].name;
+        }
+        htmlString += `<label>${playerName}, select your opponent:</label><br/>`;
+        htmlString += "<ul>";
+        notThisplayers.forEach((player) => {
+            htmlString += `<li><a href="#" onclick="initGame('${player.id}')">${player.name}</a></li>`;
+        });
+        htmlString += "</ul>";
+    } else {
+        htmlString = "<br/><label>Please wait, there are no players in player pool.</label>"
+    }
+    poolInfoDiv.innerHTML = htmlString;
+    if (!updatePool) {
+        updatePool = setInterval(joinPool, 5000);
+    }
+}
+
+function invertBoard() {
     let checkerboard = document.getElementById("checkerboard");
-    if(invertedBoard){
+    if (invertedBoard) {
         checkerboard.classList.remove("flip");
     } else {
         checkerboard.classList.add("flip");
@@ -108,7 +139,7 @@ function movePiece(pieceData) {
     //    console.log(JSON.stringify(data) + `x = ${x}, y = ${y}, percent =${percent} otherwidth =${otherWidth} width = ${checkerBoardWidth}`);
     piece.style.top = y + "px";
     piece.style.left = x + "px";
-    if (playSlideSoundOnMovePiece){
+    if (playSlideSoundOnMovePiece) {
         slide.play();
     }
     playSlideSoundOnMovePiece = false;
@@ -134,17 +165,17 @@ function addListeners() {
         let x = event.pageX;
         let y = event.pageY
         // flip the y/x for other player and repaint the dragged object to the
-        if (invertedBoard){
-            y=Math.abs(y-checkerBoardHeightY);
-            x=Math.abs(x-checkerBoardWidthX);
+        if (invertedBoard) {
+            y = Math.abs(y - checkerBoardHeightY);
+            x = Math.abs(x - checkerBoardWidthX);
         }
-        let data = { piece: dragged.id, x:x, y:y, boardWidth: checkerBoardWidthX };
+        let data = { piece: dragged.id, x: x, y: y, boardWidth: checkerBoardWidthX };
         sendXY(data);
     }, false);
     document.addEventListener("dragenter", function (event) {
-         if (event.target.style) {
+        if (event.target.style) {
             event.target.style.opacity = .5;
-         }
+        }
     }, false);
     document.addEventListener("dragleave", function (event) {
         if (event.target.style) {
@@ -159,7 +190,7 @@ function addListeners() {
     /// Touch events for devices
     document.addEventListener('touchend', (event) => {
         //console.log("touchend");
-        if (touchDragDiv.style.display === "none"){
+        if (touchDragDiv.style.display === "none") {
             return;
         }
         var touchLocation = event.changedTouches[0];
@@ -184,7 +215,7 @@ function addListeners() {
         //console.log("touchmove");
         let touch = event.targetTouches[0];
         console.log(touch.target.classList);
-        if (!touch.target.classList.contains("checkerpiece")){
+        if (!touch.target.classList.contains("checkerpiece")) {
             return;
         }
         touch.target.style.opacity = .5;
@@ -199,14 +230,14 @@ function addListeners() {
         touchDragDiv.style.left = pageX - offsetX + 'px';
         touchDragDiv.style.top = pageY - offsetY + 'px';
         // if board is inverted send opposite vertical spot, size calc is handled on other board
-        if (invertedBoard){
-            pageY=Math.abs(pageY-checkerBoardHeightY);
-            pageX=Math.abs(pageX-checkerBoardWidthX);
+        if (invertedBoard) {
+            pageY = Math.abs(pageY - checkerBoardHeightY);
+            pageX = Math.abs(pageX - checkerBoardWidthX);
         }
         let data = { piece: touch.target.id, x: pageX, y: pageY, boardWidth: checkerBoardWidthX };
         sendXY(data);
 
-        if (playSlideSound){
+        if (playSlideSound) {
             slide.play();
         }
         playSlideSound = false;

@@ -157,7 +157,6 @@ label{
   font: bold 16px'lucida sans', 'trebuchet MS', 'Tahoma';
   background:transparent;
 }
-
 input{
   padding: 8px 5px;
   margin: 10px;
@@ -238,12 +237,8 @@ header {
   font-size: 16px;
   /* border-top: solid black; */
   box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.2);
+  font: bold 14px'lucida sans', 'trebuchet MS', 'Tahoma';
 }
-
-/* dropdown {
-  position: relative;
-  display: inline-block;
-} */
 
 .dropdown-content {
   display: none;

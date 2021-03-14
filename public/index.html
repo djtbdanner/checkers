@@ -10,87 +10,41 @@
 <!-- Menu  header -->
 <header>
     <div class="dropdown">
-        <div onclick="showMenu()" class="dropbtn"><img src="images/menu_icon.png" class="dropbtnimg" alt="menu" onclick="showMenu()"></div>
+        <div onclick="showMenu()" class="dropbtn"><img src="images/menu_icon.png" class="dropbtnimg" alt="menu"></div>
         <div id="myDropdown" class="dropdown-content dropMenuItem">
             <br>
-            <div id="showMenu" onClick="logOut()" class="dropMenuItem">Log-off/on</div>
-            <!-- <br>
-            <div id="selectAnotherPlayer" onClick="alert('not yet implemented ')" class="dropMenuItem">Not implemented</div> -->
+            <div id="showMenu" onClick="logIn()" class="dropMenuItem">Home</div>
             <br>
-            <div id="colorDropDown" onClick="showMenu('color_menu')" class="dropMenuItem">Select background color...
+            <div id="colorDropDown" onClick="showMenu('color_menu')" class="dropMenuItem">Select color
                 <div id="color_menu" style="display: none;">
-                    <a href="#" onclick="changeBackgroundColor('red')" style='background-color:red;'>Red</a>
-                    <a href="#" onclick="changeBackgroundColor('orange')" style='background-color:orange;'>Orange</a>
-                    <a href="#" onclick="changeBackgroundColor('yellow')" style='background-color:yellow;'>Yellow</a>
-                    <a href="#" onclick="changeBackgroundColor('green')" style='background-color:green;'>Green</a>
-                    <a href="#" onclick="changeBackgroundColor('blue')" style='background-color:blue;'>Blue</a>
-                    <a href="#" onclick="changeBackgroundColor('indigo')" style='background-color:indigo;'>Indigo</a>
-                    <a href="#" onclick="changeBackgroundColor('violet')" style='background-color:violet;'>Violet</a>
-                    <a href="#" onclick="changeBackgroundColor('sienna')" style='background-color:sienna;'>Sienna</a>
-                    <a href="#" onclick="changeBackgroundColor('gray')" style='background-color:gray;'>Gray</a>
-                    <a href="#" onclick="changeBackgroundColor('black')" style='background-color:black; color:whitesmoke;'>Black</a>
-                    <a href="#" onclick="changeBackgroundColor('teal')" style='background-color:teal;'>Teal</a>
-                    <a href="#" onclick="changeBackgroundColor('pink')" style='background-color:pink;'>Pink</a>
-                    <a href="#" onclick="changeBackgroundColor('steelblue')"
-                        style='background-color:steelblue;'>SteelBlue</a>
-                    <a href="#" onclick="changeBackgroundColor('YellowGreen')"
-                        style='background-color:YellowGreen;'>YellowGreen</a>
-                    <a href="#" onclick="changeBackgroundColor('Maroon')" style='background-color:Maroon;'>Maroon</a>
-                    <a href="#" onclick="changeBackgroundColor('SkyBlue')" style='background-color:SkyBlue;'>SkyBlue</a>    
-                    <a href="#" onclick="changeBackgroundColor('palegreen')" style='background-color:palegreen;'>PaleGreen</a>                           
+                    <span>
+                        <label for="background-color"  onclick="event.stopPropagation()"  class="dropMenuItem">background</label> <input id="background-color" name="section-to-color" type="radio" onclick="event.stopPropagation()" checked = "checked"/>
+                        <label for="no-play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">no-play square</label> <input id="no-play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
+                        <label for="play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">play square</label> <input id="play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
+                    </span>
+                    <a href="#" onclick="changeSelectedColor('red')" style='background-color:red;'>Red</a>
+                    <a href="#" onclick="changeSelectedColor('orange')" style='background-color:orange;'>Orange</a>
+                    <a href="#" onclick="changeSelectedColor('yellow')" style='background-color:yellow;'>Yellow</a>
+                    <a href="#" onclick="changeSelectedColor('green')" style='background-color:green;'>Green</a>
+                    <a href="#" onclick="changeSelectedColor('blue')" style='background-color:blue;'>Blue</a>
+                    <a href="#" onclick="changeSelectedColor('indigo')" style='background-color:indigo;'>Indigo</a>
+                    <a href="#" onclick="changeSelectedColor('violet')" style='background-color:violet;'>Violet</a>
+                    <a href="#" onclick="changeSelectedColor('sienna')" style='background-color:sienna;'>Sienna</a>
+                    <a href="#" onclick="changeSelectedColor('gray')" style='background-color:gray;'>Gray</a>
+                    <a href="#" onclick="changeSelectedColor('black')" style='background-color:black; color:whitesmoke;'>Black</a>
+                    <a href="#" onclick="changeSelectedColor('teal')" style='background-color:teal;'>Teal</a>
+                    <a href="#" onclick="changeSelectedColor('pink')" style='background-color:pink;'>Pink</a>
+                    <a href="#" onclick="changeSelectedColor('steelblue')" style='background-color:steelblue;'>SteelBlue</a>
+                    <a href="#" onclick="changeSelectedColor('YellowGreen')" style='background-color:YellowGreen;'>YellowGreen</a>
+                    <a href="#" onclick="changeSelectedColor('Maroon')" style='background-color:Maroon;'>Maroon</a>
+                    <a href="#" onclick="changeSelectedColor('SkyBlue')" style='background-color:SkyBlue;'>SkyBlue</a>    
+                    <a href="#" onclick="changeSelectedColor('palegreen')" style='background-color:palegreen;'>PaleGreen</a>   
+                    <a href="#" onclick="changeSelectedColor('whitesmoke')" style='background-color:whitesmoke;'>Whitesmoke</a>                        
                 </div>
             </div>
             <br>
-            <div id="playSquareColor" onClick="showMenu('playSquare_color_menu')" class="dropMenuItem">Select play square color...
-                <div id="playSquare_color_menu" style="display: none;">
-                    <a href="#" onclick="changePlaysquareColor('red')" style='background-color:red;'>Red</a>
-                    <a href="#" onclick="changePlaysquareColor('orange')" style='background-color:orange;'>Orange</a>
-                    <a href="#" onclick="changePlaysquareColor('yellow')" style='background-color:yellow;'>Yellow</a>
-                    <a href="#" onclick="changePlaysquareColor('green')" style='background-color:green;'>Green</a>
-                    <a href="#" onclick="changePlaysquareColor('blue')" style='background-color:blue;'>Blue</a>
-                    <a href="#" onclick="changePlaysquareColor('indigo')" style='background-color:indigo;'>Indigo</a>
-                    <a href="#" onclick="changePlaysquareColor('violet')" style='background-color:violet;'>Violet</a>
-                    <a href="#" onclick="changePlaysquareColor('sienna')" style='background-color:sienna;'>Sienna</a>
-                    <a href="#" onclick="changePlaysquareColor('gray')" style='background-color:gray;'>Gray</a>
-                    <a href="#" onclick="changePlaysquareColor('black')" style='background-color:black; color:whitesmoke;'>Black</a>
-                    <a href="#" onclick="changePlaysquareColor('teal')" style='background-color:teal;'>Teal</a>
-                    <a href="#" onclick="changePlaysquareColor('pink')" style='background-color:pink;'>Pink</a>
-                    <a href="#" onclick="changePlaysquareColor('steelblue')"
-                        style='background-color:steelblue;'>SteelBlue</a>
-                    <a href="#" onclick="changePlaysquareColor('YellowGreen')"
-                        style='background-color:YellowGreen;'>YellowGreen</a>
-                    <a href="#" onclick="changePlaysquareColor('Maroon')" style='background-color:Maroon;'>Maroon</a>
-                    <a href="#" onclick="changePlaysquareColor('SkyBlue')" style='background-color:SkyBlue;'>SkyBlue</a>    
-                    <a href="#" onclick="changePlaysquareColor('palegreen')" style='background-color:palegreen;'>PaleGreen</a>                           
-                </div>
-            </div>
+                <div id="showMenu" onClick="logOut()" class="dropMenuItem">Log-out</div>
             <br>
-            <div id="offSquareColor" onClick="showMenu('offSquare_color_menu')" class="dropMenuItem">Select alt square color...
-                <div id="offSquare_color_menu" style="display: none;">
-                    <a href="#" onclick="changeOffsquareColor('red')" style='background-color:red;'>Red</a>
-                    <a href="#" onclick="changeOffsquareColor('orange')" style='background-color:orange;'>Orange</a>
-                    <a href="#" onclick="changeOffsquareColor('yellow')" style='background-color:yellow;'>Yellow</a>
-                    <a href="#" onclick="changeOffsquareColor('green')" style='background-color:green;'>Green</a>
-                    <a href="#" onclick="changeOffsquareColor('blue')" style='background-color:blue;'>Blue</a>
-                    <a href="#" onclick="changeOffsquareColor('indigo')" style='background-color:indigo;'>Indigo</a>
-                    <a href="#" onclick="changeOffsquareColor('violet')" style='background-color:violet;'>Violet</a>
-                    <a href="#" onclick="changeOffsquareColor('sienna')" style='background-color:sienna;'>Sienna</a>
-                    <a href="#" onclick="changeOffsquareColor('gray')" style='background-color:gray;'>Gray</a>
-                    <a href="#" onclick="changeOffsquareColor('black')" style='background-color:black; color:whitesmoke;'>Black</a>
-                    <a href="#" onclick="changeOffsquareColor('teal')" style='background-color:teal;'>Teal</a>
-                    <a href="#" onclick="changeOffsquareColor('pink')" style='background-color:pink;'>Pink</a>
-                    <a href="#" onclick="changeOffsquareColor('steelblue')"
-                        style='background-color:steelblue;'>SteelBlue</a>
-                    <a href="#" onclick="changeOffsquareColor('YellowGreen')"
-                        style='background-color:YellowGreen;'>YellowGreen</a>
-                    <a href="#" onclick="changeOffsquareColor('Maroon')" style='background-color:Maroon;'>Maroon</a>
-                    <a href="#" onclick="changeOffsquareColor('SkyBlue')" style='background-color:SkyBlue;'>SkyBlue</a>    
-                    <a href="#" onclick="changeOffsquareColor('palegreen')" style='background-color:palegreen;'>PaleGreen</a>                           
-                </div>
-            </div>
-            <!-- <br> -->
-            <!-- <div id="playSolo" onClick="standAloneGenBoard()" class="dropMenuItem">Play Solo</div> -->
-
         </div>
     </div>
     <div id="menu_txt" class="menu_txt">
@@ -101,29 +55,31 @@
 <div style class="menu-spacer-div"></div>
 <!-- End menu -->
 <body>
-	<div id="checkerboard" draggable = "false" class="square-box" style="display:none;"></div>
-
-    <!-- <div class="modal" id="modal_div" style="display:none">
-        <div id="modal_msg" class="modal_msg"></div>
-	</div> -->
-
+    <div id="checkerboard" draggable = "false" class="square-box" style="display:none;"></div>
+    
+    <div id="poolDiv" draggable = "false" class="login_div" style="display:none;" >
+        <br/>
+        <div id="poolInfo"></div>
+    </div>
+    
 	<div id="messageDiv" class="messageDiv" style = "display:none;"></div>
 
-	<!-- this is the dive used by touch devices -->
+	<!-- this is the div used by touch devices -->
 	<div id="touchDragDiv" class="dragItem"></div>
 
 	<!-- initial login div -->
-    <div id="login_div" class="login_div">
-        <h1>How about a name?</h1>
+    <div id="login_div" class="login_div" style = "display:block;">
+        <br/>
         <label for="loginname">Name:</label>
 		<br>
         <input type="text" placeholder="Enter Name" name="loginname" id="playerName" required>
 		<br>
 		<br>
-		<a href="#" id="login_btn" class="login_button" onclick="init();">Play someone...</a>
-		<!-- <a href="#" id="login_btn" class="login_button" onclick="alert('not yet implemented :(');">See player list...</a> -->
+        <a href="#" id="pool_btn" class="login_button" onclick="joinPool();">Connect with another player...</a>
     </div>
 
+    <input type="hidden" id="storedPlayerName" value=""/>
+    <input type="hidden" id="storedPlayerId" value=""/>
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script type="application/javascript" src="./js/common.js"></script>	
