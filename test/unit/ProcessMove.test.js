@@ -148,7 +148,7 @@ describe("ProcessMove tests", () => {
         expect(game.player2.turn).toBeFalsy();
         expect(game.player1.pieces.length).toEqual(12);
         expect(game.player2.pieces.length).toEqual(12);
-        expect(message).toContain("at least one jump move is on the board and you must do a jump if one is available");
+        expect(message).toContain("You have at least one jump on the board");
         expect(game.player1.pieces[8].location).toEqual("6_1");
 
         val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "5_6", "3_8")
