@@ -3,7 +3,8 @@ const http = require('http');
 const socketio = require('socket.io');
 const fs = require('fs');
 
-const allowedFiles = findFilesInPublicForSecurity();
+const content = "/public";
+const allowedFiles = findFilesInPublicForSecurity(content);
 const port = 8080;
 
 app = http.createServer(function (req, res) {
@@ -20,7 +21,7 @@ app = http.createServer(function (req, res) {
   }
 
 
-  fs.readFile(__dirname + "/public" + url, function (err, data) {
+  fs.readFile(__dirname + content + url, function (err, data) {
     if (err) {
       res.writeHead(404);
       res.end(JSON.stringify(err));
@@ -39,20 +40,20 @@ module.exports = {
   io
 }
 
-function findFilesInPublicForSecurity() {
-  const dirs = fs.readdirSync(__dirname + "/public", { withFileTypes: true })
+function findFilesInPublicForSecurity(contentFolder) {
+  const dirs = fs.readdirSync(__dirname + contentFolder, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name);
 
   let allowedFiles = ["/", ""];
   dirs.forEach((dir) => {
-    const x = fs.readdirSync(__dirname + `/public/${dir}`, { withFileTypes: true })
+    const x = fs.readdirSync(__dirname + `${contentFolder}/${dir}`, { withFileTypes: true })
       .filter(dirent => !dirent.isDirectory())
       .map(dirent => `/${dir}/${dirent.name}`);
     allowedFiles = allowedFiles.concat(x);
   });
 
-  const files = fs.readdirSync(__dirname + "/public", { withFileTypes: true })
+  const files = fs.readdirSync(__dirname + contentFolder, { withFileTypes: true })
     .filter(dirent => !dirent.isDirectory())
     .map(dirent => `/${dirent.name}`);
   allowedFiles = allowedFiles.concat(files);
