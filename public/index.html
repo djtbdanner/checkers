@@ -18,9 +18,9 @@
             <div id="colorDropDown" onClick="showMenu('color_menu')" class="dropMenuItem">Select color
                 <div id="color_menu" style="display: none;">
                     <span>
-                        <label for="background-color"  onclick="event.stopPropagation()"  class="dropMenuItem">background</label> <input id="background-color" name="section-to-color" type="radio" onclick="event.stopPropagation()" checked = "checked"/>
-                        <label for="no-play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">no-play square</label> <input id="no-play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
-                        <label for="play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">play square</label> <input id="play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
+                        <label for="background-color"  onclick="event.stopPropagation()"  class="dropMenuItem">bckgrnd</label> <input id="background-color" name="section-to-color" type="radio" onclick="event.stopPropagation()" checked = "checked"/>
+                        <label for="no-play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">X sqr</label> <input id="no-play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
+                        <label for="play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">O sqr</label> <input id="play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
                     </span>
                     <a href="#" onclick="changeSelectedColor('red')" style='background-color:red;'>Red</a>
                     <a href="#" onclick="changeSelectedColor('orange')" style='background-color:orange;'>Orange</a>
@@ -56,12 +56,6 @@
 <!-- End menu -->
 <body>
     <div id="checkerboard" draggable = "false" class="square-box" style="display:none;"></div>
-    
-    <div id="poolDiv" draggable = "false" class="login_div" style="display:none;" >
-        <br/>
-        <div id="poolInfo"></div>
-    </div>
-    
 	<div id="messageDiv" class="messageDiv" style = "display:none;"></div>
 
 	<!-- this is the div used by touch devices -->
@@ -76,6 +70,14 @@
 		<br>
 		<br>
         <a href="#" id="pool_btn" class="login_button" onclick="joinPool();">Connect with another player...</a>
+    </div>
+
+    <div style=" display: none" id="user_select_div" class="login_div">
+        <h1 id="user_select_header"></h1>
+        <hr>
+        <p id="user_select_display"></p>
+        <hr>
+        <!-- <p>Or, just select Play Solo from the menu (top left).</p> -->
     </div>
 
     <input type="hidden" id="storedPlayerName" value=""/>

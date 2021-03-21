@@ -47,7 +47,7 @@ socket.on('joinPoolReturn', (data) => {
     storedPlayerNameElement.value = player.name;
     /// name may have been set or modified by the back end
     playerNameElement.value = player.name;
-    drawPlayerPool(JSON.parse(data.players));
+    drawPlayerPool(JSON.parse(data.players), player);
 });
 
 // reinitilaze game - likely due to other player leaving

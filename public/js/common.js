@@ -9,8 +9,9 @@ const playerNameElement = document.getElementById("playerName");
 const storedPlayerNameElement = document.getElementById("storedPlayerName");
 const storedPlayerIdElement = document.getElementById("storedPlayerId");
 const messageDiv = document.getElementById("messageDiv");
-const poolDiv = document.getElementById("poolDiv");
-const poolInfoDiv = document.getElementById("poolInfo");
+const userSelectDiv = document.getElementById("user_select_div");
+const userSelectHeader = document.getElementById('user_select_header');
+const userSelectDisplay = document.getElementById('user_select_display');
 const poolButton = document.getElementById("pool_btn");
 
 // checkerBoardWidthX Height used in move calculations to determine distance size, etc. (they should be same)
@@ -117,7 +118,7 @@ playerNameElement.addEventListener("keyup", event => {
 function logOut(){
     clearInterval(updatePool);
     disconnect();
-    poolDiv.style.display = "none";
+    userSelectDiv.style.display = "none";
     checkerboard.style.display = "none";
     loginDiv.style.display = "none";
     messageDiv.style.display = "block";
@@ -131,7 +132,7 @@ function logIn(){
     clearInterval(updatePool);
     disconnect();    
     reconnect();
-    poolDiv.style.display = "none";
+    userSelectDiv.style.display = "none";
     checkerboard.style.display = "none";
     loginDiv.style.display = "block";
     messageDiv.style.display = "none";

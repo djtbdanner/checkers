@@ -1,7 +1,7 @@
 function drawCheckerBoard() {
     clearInterval(updatePool);
     loginDiv.style.display = "none";
-    poolDiv.style.display = "none";
+    userSelectDiv.style.display = "none";
     checkerboard.style.display = "block";
     let existingTable = document.getElementById("ch_table");
     if (existingTable) {
@@ -43,31 +43,30 @@ function drawCheckerBoard() {
 }
 
 let updatePool;
-function drawPlayerPool(players) {
+function drawPlayerPool(players, player) {
     loginDiv.style.display = "none";
     checkerboard.style.display = "none";
     messageDiv.style.display = "none";
     messageDiv.innerHTML = "";
-    poolDiv.style.display = "block";
+    userSelectDiv.style.display = "block";
 
-    let notThisplayers = players.filter((p) => { return p.id !== storedPlayerIdElement.value });
-    let thisPlayer = players.filter((p) => { return p.id === storedPlayerIdElement.value });
+    let users = players.filter((p) => { return p.id !== storedPlayerIdElement.value });
     htmlString = "";
-    if (notThisplayers.length > 0) {
-        let playerName = "Player ";
-        if (thisPlayer && thisPlayer.length > 0){
-            playerName = thisPlayer[0].name;
-        }
-        htmlString += `<label>${playerName}, select your opponent:</label><br/>`;
-        htmlString += "<ul>";
-        notThisplayers.forEach((player) => {
-            htmlString += `<li><a href="#" onclick="initGame('${player.id}')">${player.name}</a></li>`;
-        });
-        htmlString += "</ul>";
+    if (users === undefined || users.length === 0) {
+        userSelectDisplay.innerHTML = "No users found at this time, your name will be on the list for any other player logging in.";
     } else {
-        htmlString = "<br/><label>Please wait, there are no players in player pool.</label>"
+        let links = '';
+        links += `${player.name}, select a player for a checkers challenge...</p>`;
+        users.forEach((user, index) => {
+            if (index > 0 && index % 4 === 0) {
+                links += `<br><br>`;
+            }
+            links += ` <a href="#" onclick = "initGame('${user.id}')" class="login_button">${user.name}</a>`;
+    
+        });
+        links += `<br><br>`;
+        userSelectDisplay.innerHTML = links;
     }
-    poolInfoDiv.innerHTML = htmlString;
     if (!updatePool) {
         updatePool = setInterval(joinPool, 5000);
     }
