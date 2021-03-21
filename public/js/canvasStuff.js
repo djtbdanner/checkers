@@ -250,6 +250,13 @@ function addListeners() {
         }
         playSlideSound = false;
     });
+
+    playerNameElement.addEventListener("keyup", event => {
+        if (event.key !== "Enter") return;
+        poolButton.click();
+        event.preventDefault();
+    });
+
     listenersAdded = true;
 }
 addListeners();

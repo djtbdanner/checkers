@@ -253,6 +253,7 @@ function randomNameGenerator(num) {
         const random = Math.floor(Math.random() * 26);
         res += String.fromCharCode(97 + random);
     };
+    res = res.charAt(0).toUpperCase() + res.slice(1);
     return res;
 };
 

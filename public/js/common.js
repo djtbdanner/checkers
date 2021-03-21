@@ -110,12 +110,6 @@ function closeMenu() {
     document.getElementById('color_menu').style.display = 'none';
 }
 
-playerNameElement.addEventListener("keyup", event => {
-    if (event.key !== "Enter") return;
-    poolButton.click();
-    event.preventDefault();
-});
-
 function logOut(){
     resetUpdatePoolMonitor();
     disconnect();
