@@ -1,12 +1,12 @@
 function initGame(playerTwoId) {
-    clearInterval(updatePool);
+    resetUpdatePoolMonitor(updaePool);
     socket.emit('initGame', {
         playerTwoId
     });
 }
 
 socket.on('initGameReturn', (data) => {
-    clearInterval(updatePool);
+    resetUpdatePoolMonitor();
     drawCheckerBoard();
     addListeners();
     checkerBoardWidthX = checkerboard.offsetWidth;

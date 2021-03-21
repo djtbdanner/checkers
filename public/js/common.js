@@ -116,7 +116,7 @@ playerNameElement.addEventListener("keyup", event => {
 });
 
 function logOut(){
-    clearInterval(updatePool);
+    resetUpdatePoolMonitor();
     disconnect();
     userSelectDiv.style.display = "none";
     checkerboard.style.display = "none";
@@ -129,7 +129,7 @@ function logOut(){
 }
 
 function logIn(){
-    clearInterval(updatePool);
+    resetUpdatePoolMonitor();
     disconnect();    
     reconnect();
     userSelectDiv.style.display = "none";

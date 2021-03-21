@@ -1,5 +1,5 @@
 function drawCheckerBoard() {
-    clearInterval(updatePool);
+    resetUpdatePoolMonitor();
     loginDiv.style.display = "none";
     userSelectDiv.style.display = "none";
     checkerboard.style.display = "block";
@@ -42,7 +42,6 @@ function drawCheckerBoard() {
     checkerboard.appendChild(table);
 }
 
-let updatePool;
 function drawPlayerPool(players, player) {
     loginDiv.style.display = "none";
     checkerboard.style.display = "none";
@@ -71,6 +70,12 @@ function drawPlayerPool(players, player) {
         updatePool = setInterval(joinPool, 5000);
     }
 }
+let updatePool;
+function resetUpdatePoolMonitor (){
+    resetUpdatePoolMonitor();
+    updatePool = undefined;
+}
+
 
 function invertBoard() {
     let checkerboard = document.getElementById("checkerboard");
