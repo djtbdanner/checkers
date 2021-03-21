@@ -8,7 +8,6 @@ function initGame(playerTwoId) {
 socket.on('initGameReturn', (data) => {
     resetUpdatePoolMonitor();
     drawCheckerBoard();
-    addListeners();
     checkerBoardWidthX = checkerboard.offsetWidth;
     checkerBoardHeightY = checkerboard.offsetWidth;
     let player1 = JSON.parse(data.player);

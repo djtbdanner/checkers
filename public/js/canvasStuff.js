@@ -150,8 +150,11 @@ function movePiece(pieceData) {
     playSlideSoundOnMovePiece = false;
 }
 
+let listenersAdded = false;
 function addListeners() {
-    /// -- Drag event processing for desktop screens
+    if (listenersAdded){
+        return;
+    }
     let dragged = {};
     document.addEventListener('drop', (event) => {
         event.preventDefault();
@@ -247,5 +250,6 @@ function addListeners() {
         }
         playSlideSound = false;
     });
-
+    listenersAdded = true;
 }
+addListeners();
