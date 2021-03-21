@@ -25,6 +25,7 @@ var tap = new Audio('/sounds/tap.mp3');
 var slide = new Audio('/sounds/slide.mp3');
 var king = new Audio('/sounds/king.mp3');
 var cheer = new Audio('/sounds/cheer.mp3');
+var fail = new Audio('/sounds/fail.mp3');
 
 function showMenu(id) {
     if (id == undefined) {

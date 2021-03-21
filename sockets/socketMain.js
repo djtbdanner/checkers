@@ -14,9 +14,28 @@ let players = [];
 io.sockets.on('connect', (socket) => {
     console.log("initial connection ");
     socket.on('initGame', (data) => {
-        const playerOne = players.find((p) => { return p.socketId === socket.id });
-        const playerTwo = players.find((p) => { return p.id === data.playerTwoId });
+        let game = getGameAndOtherPlayerSocket(socket).game;
+        let playerOne;
+        let playerTwo;
+        if (game){
+            games = games.filter((g) => { g.id !== game.id; });
+            playerOne = game.getPlayerBySocket(socket.id);
+            if (playerOne){
+                playerTwo = game.getOtherPlayer(playerOne);
+            }
+            socket.emit('resetInvert', {});
+        } else {
+            playerOne = players.find((p) => { return p.socketId === socket.id });
+            playerTwo = players.find((p) => { return p.id === data.playerTwoId });
+        }
 
+        if (!playerTwo || !playerOne){
+            socket.emit('flashMessage', { message: `Looks like the player has left the game, you click home on the menu to find another player.`});
+            return;
+        }
+        // line up boards for replay
+        socket.emit('resetInvert', {});
+        socket.to(playerTwo.socketId).emit('resetInvert', {});
         let aGame = new Game(playerOne, playerTwo);
         games.push(aGame);
 
@@ -30,7 +49,7 @@ io.sockets.on('connect', (socket) => {
         playerTwo.decending = !playerOne.decending;
         players = players.filter((p) => { return p.id !== playerOne.id });
         players = players.filter((p) => { return p.id !== playerTwo.id });
-
+        console.log(`Game Begins :  ${JSON.stringify(aGame)}`);
         socket.emit('initGameReturn', { player: JSON.stringify(playerOne), otherPlayer: JSON.stringify(playerTwo) });
         socket.to(playerTwo.socketId).emit('initGameReturn', { player: JSON.stringify(playerTwo), otherPlayer: JSON.stringify(playerOne) });
 
@@ -84,9 +103,12 @@ io.sockets.on('connect', (socket) => {
         socket.emit('playSound', { sound });
         socket.to(otherPlayerSocketId).emit('playSound', { sound });
         if (thisPlayer.winner) {
-            socket.emit('flashMessage', { message: `YOU WIN!!!!` });
+            const playAgainThisPlayer = `<br><br><a href="#" onclick="initGame('${otherPlayer.id}')" class="login_button">Play ${otherPlayer.name} again...</a>`;
+            const playAgainOtherPlayer = `<br><br><a href="#" onclick="initGame('${thisPlayer}')" class="login_button">Play ${thisPlayer.name} again...</a>`
+            socket.emit('flashMessage', { message: `YOU WIN!!!! ${playAgainThisPlayer}` });
             socket.emit('playSound', { sound: `cheer` });
-            socket.to(otherPlayerSocketId).emit('flashMessage', { message: `You lost this time. Better luck next time!` });
+            socket.to(otherPlayerSocketId).emit('playSound', { sound: `fail` });
+            socket.to(otherPlayerSocketId).emit('flashMessage', { message: `You lost this time. Better luck next time! ${playAgainOtherPlayer}` });
         } else {
             if (displayTurns) {
 
@@ -113,7 +135,7 @@ io.sockets.on('connect', (socket) => {
                 return p.id === playerId;
             });
             if (!player) {
-                player = new Player(socket.id, undefined, playerName);
+                player = new Player(socket.id, undefined, playerName, playerId);
                 players.push(player);
             }
         } else {
@@ -130,7 +152,7 @@ io.sockets.on('connect', (socket) => {
         let otherPlayerSocketId = vals.socketId;
         let game = vals.game;
 
-        console.log(JSON.stringify(players));
+        // console.log(JSON.stringify(players));
         console.log(`Removing player with socket ${socket.id} from list of players`);
         players = players.filter((p) => { return p.socketId !== socket.id });
         console.log(JSON.stringify(players));

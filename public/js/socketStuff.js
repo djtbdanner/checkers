@@ -1,5 +1,5 @@
 function initGame(playerTwoId) {
-    resetUpdatePoolMonitor(updaePool);
+    resetUpdatePoolMonitor();
     socket.emit('initGame', {
         playerTwoId
     });
@@ -52,6 +52,7 @@ socket.on('joinPoolReturn', (data) => {
 
 // reinitilaze game - likely due to other player leaving
 socket.on('reInitReturn', (data) => {
+    resetUpdatePoolMonitor();
     if (invertedBoard) {
         invertBoard();
     }
@@ -64,6 +65,12 @@ socket.on('reInitReturn', (data) => {
 
 socket.on('invertBoard', (data) => {
     invertBoard();
+});
+
+socket.on('resetInvert', (data) => {
+    checkerboard.classList.remove("flip");
+    invertedBoard = false;
+    console.log("resetted the damn thing");
 });
 
 socket.on('updateBoard', (data) => {
@@ -96,6 +103,9 @@ socket.on('playSound', (data) => {
     }
     if (sound === "tap") {
         tap.play();
+    }
+    if (sound === "fail"){
+        fail.play();
     }
 });
 

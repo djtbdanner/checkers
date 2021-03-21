@@ -67,17 +67,18 @@ function drawPlayerPool(players, player) {
         userSelectDisplay.innerHTML = links;
     }
     if (!updatePool) {
-        updatePool = setInterval(joinPool, 5000);
+        updatePool = setInterval(joinPool, 3000);
     }
 }
 let updatePool;
 function resetUpdatePoolMonitor (){
-    resetUpdatePoolMonitor();
+    clearInterval(updatePool);
     updatePool = undefined;
 }
 
 
 function invertBoard() {
+    resetUpdatePoolMonitor();
     let checkerboard = document.getElementById("checkerboard");
     if (invertedBoard) {
         checkerboard.classList.remove("flip");
@@ -218,7 +219,7 @@ function addListeners() {
         //event.preventDefault();
         //console.log("touchmove");
         let touch = event.targetTouches[0];
-        console.log(touch.target.classList);
+        // console.log(touch.target.classList);
         if (!touch.target.classList.contains("checkerpiece")) {
             return;
         }

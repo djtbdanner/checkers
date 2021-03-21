@@ -15,6 +15,10 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
     }
 
     if (destination && destination.startsWith("img")) {
+        if (destination.split("img_")[1] === origin){
+            // player put piece back into original square
+            return {game};
+        }
         return { game, message: `cannot move to an occupied square` };
     }
 
