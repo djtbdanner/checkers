@@ -125,6 +125,10 @@ function sendDrop(piece, targetId) {
     socket.emit('drop', { targetId: targetId, pieceId: piece.id });
 }
 
+socket.on('backendError', (data) => {
+    alert(JSON.stringify(data));
+});
+
 function disconnect() {
     socket.disconnect();
 }

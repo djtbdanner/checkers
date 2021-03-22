@@ -14,167 +14,187 @@ let players = [];
 io.sockets.on('connect', (socket) => {
     console.log("initial connection ");
     socket.on('initGame', (data) => {
-        let game = getGameAndOtherPlayerSocket(socket).game;
-        let playerOne;
-        let playerTwo;
-        if (game){
-            games = games.filter((g) => { g.id !== game.id; });
-            playerOne = game.getPlayerBySocket(socket.id);
-            if (playerOne){
-                playerTwo = game.getOtherPlayer(playerOne);
+        try {
+            let game = getGameAndOtherPlayerSocket(socket).game;
+            let playerOne;
+            let playerTwo;
+            if (game) {
+                games = games.filter((g) => { g.id !== game.id; });
+                playerOne = game.getPlayerBySocket(socket.id);
+                if (playerOne) {
+                    playerTwo = game.getOtherPlayer(playerOne);
+                }
+                socket.emit('resetInvert', {});
+            } else {
+                playerOne = players.find((p) => { return p.socketId === socket.id });
+                playerTwo = players.find((p) => { return p.id === data.playerTwoId });
             }
+
+            if (!playerTwo || !playerOne) {
+                socket.emit('flashMessage', { message: `Looks like the player has left the game, you click home on the menu to find another player.` });
+                return;
+            }
+            // line up boards for replay
             socket.emit('resetInvert', {});
-        } else {
-            playerOne = players.find((p) => { return p.socketId === socket.id });
-            playerTwo = players.find((p) => { return p.id === data.playerTwoId });
+            socket.to(playerTwo.socketId).emit('resetInvert', {});
+            let aGame = new Game(playerOne, playerTwo);
+            games.push(aGame);
+
+            playerOne.pieces = setUpBlackPieces();
+            playerOne.turn = true;
+            playerOne.winner = false;
+            playerOne.decending = true;
+            playerTwo.pieces = setUpRedPieces();
+            playerTwo.turn = false;
+            playerTwo.winner = false;
+            playerTwo.decending = !playerOne.decending;
+            players = players.filter((p) => { return p.id !== playerOne.id });
+            players = players.filter((p) => { return p.id !== playerTwo.id });
+            console.log(`Game Begins :  ${JSON.stringify(aGame)}`);
+            socket.emit('initGameReturn', { player: JSON.stringify(playerOne), otherPlayer: JSON.stringify(playerTwo) });
+            socket.to(playerTwo.socketId).emit('initGameReturn', { player: JSON.stringify(playerTwo), otherPlayer: JSON.stringify(playerOne) });
+
+            socket.emit('flashMessage', { message: `Playing ${playerTwo.name}, you are playing black pieces. It is your turn first.` });
+            socket.to(playerTwo.socketId).emit('flashMessage', { message: `Playing ${playerOne.name}, you are playing red pieces. It is ${playerOne.getPossesiveName()} turn first.` });
+            // invert board for player 2 so their side is facing them
+            socket.to(playerTwo.socketId).emit('invertBoard', {});
+        } catch (error) {
+            handleError(socket, error, data);
         }
-
-        if (!playerTwo || !playerOne){
-            socket.emit('flashMessage', { message: `Looks like the player has left the game, you click home on the menu to find another player.`});
-            return;
-        }
-        // line up boards for replay
-        socket.emit('resetInvert', {});
-        socket.to(playerTwo.socketId).emit('resetInvert', {});
-        let aGame = new Game(playerOne, playerTwo);
-        games.push(aGame);
-
-        playerOne.pieces = setUpBlackPieces();
-        playerOne.turn = true;
-        playerOne.winner = false;
-        playerOne.decending = true;
-        playerTwo.pieces = setUpRedPieces();
-        playerTwo.turn = false;
-        playerTwo.winner = false;
-        playerTwo.decending = !playerOne.decending;
-        players = players.filter((p) => { return p.id !== playerOne.id });
-        players = players.filter((p) => { return p.id !== playerTwo.id });
-        console.log(`Game Begins :  ${JSON.stringify(aGame)}`);
-        socket.emit('initGameReturn', { player: JSON.stringify(playerOne), otherPlayer: JSON.stringify(playerTwo) });
-        socket.to(playerTwo.socketId).emit('initGameReturn', { player: JSON.stringify(playerTwo), otherPlayer: JSON.stringify(playerOne) });
-
-        socket.emit('flashMessage', { message: `Playing ${playerTwo.name}, you are playing black pieces. It is your turn first.` });
-        socket.to(playerTwo.socketId).emit('flashMessage', { message: `Playing ${playerOne.name}, you are playing red pieces. It is ${playerOne.getPossesiveName()} turn first.` });
-        // invert board for player 2 so their side is facing them
-        socket.to(playerTwo.socketId).emit('invertBoard', {});
     });
 
     // player is moving a piece
     socket.on('moving', (data) => {
-        // console.log(JSON.stringify(data));
-        let socketId = getGameAndOtherPlayerSocket(socket).socketId;
-        //console.log(data);
-        if (socketId != undefined) {
-            socket.to(socketId).emit('otherPlayerMove', JSON.stringify(data));
+        try {
+            // console.log(JSON.stringify(data));
+            let socketId = getGameAndOtherPlayerSocket(socket).socketId;
+            //console.log(data);
+            if (socketId != undefined) {
+                socket.to(socketId).emit('otherPlayerMove', JSON.stringify(data));
+            }
+        } catch (error) {
+            handleError(socket, error, data);
         }
     });
 
     // player releases piece to make a move
     socket.on('drop', (data) => {
-        let vals = getGameAndOtherPlayerSocket(socket);
-        let otherPlayerSocketId = vals.socketId;
-        let game = vals.game;
-        thisPlayer = game.getPlayerBySocket(socket.id);
-        otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
-        let displayTurns = true;
-        let kinged = false;
-        if (otherPlayerSocketId != undefined) {
-            let origin = data.pieceId.replace("img_", "");
-            const index = thisPlayer.pieces.findIndex(el => el.location === origin);
-            let piece = undefined;
-            if (index > -1) {
-                piece = thisPlayer.pieces[index];
-            }
-            vals = ProcessMove.validateAndProcessPlayerMove(game, thisPlayer, origin, data.targetId);
-            game = vals.game;
-            let message = vals.message;
-            kinged = vals.kinged;
-            if (message) {
-                socket.emit('flashMessage', { message: `Invalid Move:  ${message}.` });
-                displayTurns = false;
-            }
-        }
-        let sound = "tap";
-        if (kinged) {
-            sound = "king";
-        }
-        socket.emit('updateBoard', { player1: JSON.stringify(game.getPlayerBySocket(socket.id)), player2: JSON.stringify(otherPlayer) });
-        socket.to(otherPlayerSocketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
-        socket.emit('playSound', { sound });
-        socket.to(otherPlayerSocketId).emit('playSound', { sound });
-        if (thisPlayer.winner) {
-            const playAgainThisPlayer = `<br><br><a href="#" onclick="initGame('${otherPlayer.id}')" class="login_button">Play ${otherPlayer.name} again...</a>`;
-            const playAgainOtherPlayer = `<br><br><a href="#" onclick="initGame('${thisPlayer}')" class="login_button">Play ${thisPlayer.name} again...</a>`
-            socket.emit('flashMessage', { message: `YOU WIN!!!! ${playAgainThisPlayer}` });
-            socket.emit('playSound', { sound: `cheer` });
-            socket.to(otherPlayerSocketId).emit('playSound', { sound: `fail` });
-            socket.to(otherPlayerSocketId).emit('flashMessage', { message: `You lost this time. Better luck next time! ${playAgainOtherPlayer}` });
-        } else {
-            if (displayTurns) {
-
-                if (thisPlayer.turn) {
-                    socket.emit('flashMessage', { message: `Your turn.` });
-                    socket.to(otherPlayerSocketId).emit('flashMessage', { message: `${thisPlayer.getPossesiveName()} turn.` });
-                } else {
-                    socket.emit('flashMessage', { message: `${otherPlayer.getPossesiveName()} turn.` });
-                    socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Your turn.` });
+        try {
+            let vals = getGameAndOtherPlayerSocket(socket);
+            let otherPlayerSocketId = vals.socketId;
+            let game = vals.game;
+            thisPlayer = game.getPlayerBySocket(socket.id);
+            otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
+            let displayTurns = true;
+            let kinged = false;
+            if (otherPlayerSocketId != undefined) {
+                let origin = data.pieceId.replace("img_", "");
+                const index = thisPlayer.pieces.findIndex(el => el.location === origin);
+                let piece = undefined;
+                if (index > -1) {
+                    piece = thisPlayer.pieces[index];
+                }
+                vals = ProcessMove.validateAndProcessPlayerMove(game, thisPlayer, origin, data.targetId);
+                game = vals.game;
+                let message = vals.message;
+                kinged = vals.kinged;
+                if (message) {
+                    socket.emit('flashMessage', { message: `Invalid Move:  ${message}.` });
+                    displayTurns = false;
                 }
             }
+            let sound = "tap";
+            if (kinged) {
+                sound = "king";
+            }
+            socket.emit('updateBoard', { player1: JSON.stringify(game.getPlayerBySocket(socket.id)), player2: JSON.stringify(otherPlayer) });
+            socket.to(otherPlayerSocketId).emit('updateBoard', { player1: JSON.stringify(thisPlayer), player2: JSON.stringify(otherPlayer) });
+            socket.emit('playSound', { sound });
+            socket.to(otherPlayerSocketId).emit('playSound', { sound });
+            if (thisPlayer.winner) {
+                const playAgainThisPlayer = `<br><br><a href="#" onclick="initGame('${otherPlayer.id}')" class="login_button">Play ${otherPlayer.name} again...</a>`;
+                const playAgainOtherPlayer = `<br><br><a href="#" onclick="initGame('${thisPlayer}')" class="login_button">Play ${thisPlayer.name} again...</a>`
+                socket.emit('flashMessage', { message: `YOU WIN!!!! ${playAgainThisPlayer}` });
+                socket.emit('playSound', { sound: `cheer` });
+                socket.to(otherPlayerSocketId).emit('playSound', { sound: `fail` });
+                socket.to(otherPlayerSocketId).emit('flashMessage', { message: `You lost this time. Better luck next time! ${playAgainOtherPlayer}` });
+            } else {
+                if (displayTurns) {
+
+                    if (thisPlayer.turn) {
+                        socket.emit('flashMessage', { message: `Your turn.` });
+                        socket.to(otherPlayerSocketId).emit('flashMessage', { message: `${thisPlayer.getPossesiveName()} turn.` });
+                    } else {
+                        socket.emit('flashMessage', { message: `${otherPlayer.getPossesiveName()} turn.` });
+                        socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Your turn.` });
+                    }
+                }
+            }
+        } catch (error) {
+            handleError(socket, error, data);
         }
     });
 
     // player joins player pool to choose or be choosen
     socket.on('joinPool', function (data) {
-        console.log(`join pool: ${JSON.stringify(data)}`)
-        let playerName = data.playerName || randomNameGenerator();
-        playerName = replaceBadWordFilter(playerName);
-        const playerId = data.playerId;
-        let player;
-        if (playerId) {
-            player = players.find((p) => {
-                return p.id === playerId;
-            });
-            if (!player) {
-                player = new Player(socket.id, undefined, playerName, playerId);
+        try {
+            console.log(`join pool: ${JSON.stringify(data)}`)
+            let playerName = data.playerName || randomNameGenerator();
+            playerName = replaceBadWordFilter(playerName);
+            const playerId = data.playerId;
+            let player;
+            if (playerId) {
+                player = players.find((p) => {
+                    return p.id === playerId;
+                });
+                if (!player) {
+                    player = new Player(socket.id, undefined, playerName, playerId);
+                    players.push(player);
+                }
+            } else {
+                player = new Player(socket.id, undefined, playerName);
                 players.push(player);
             }
-        } else {
-            player = new Player(socket.id, undefined, playerName);
-            players.push(player);
+            players.sort((a, b) => a.name.localeCompare(b.name));
+            socket.emit('joinPoolReturn', { player: JSON.stringify(player), players: JSON.stringify(players) });
+        } catch (error) {
+            handleError(socket, error, data);
         }
-        players.sort((a, b) => a.name.localeCompare(b.name));
-        socket.emit('joinPoolReturn', { player: JSON.stringify(player), players: JSON.stringify(players) });
     });
 
     // player disconnects
     socket.on('disconnect', function () {
-        let vals = getGameAndOtherPlayerSocket(socket);
-        let otherPlayerSocketId = vals.socketId;
-        let game = vals.game;
+        try {
+            let vals = getGameAndOtherPlayerSocket(socket);
+            let otherPlayerSocketId = vals.socketId;
+            let game = vals.game;
 
-        // console.log(JSON.stringify(players));
-        console.log(`Removing player with socket ${socket.id} from list of players`);
-        players = players.filter((p) => { return p.socketId !== socket.id });
-        console.log(JSON.stringify(players));
+            // console.log(JSON.stringify(players));
+            console.log(`Removing player with socket ${socket.id} from list of players`);
+            players = players.filter((p) => { return p.socketId !== socket.id });
+            console.log(JSON.stringify(players));
 
-        if (game) {
-            console.log(`Removing ${game.id} from list of games`);
-            games = games.filter((g) => { g.id !== game.id });
-            const thisPlayer = game.getPlayerBySocket(socket.id);
-            // if there is another player, set them up, otherwise just remove the game
-            if (otherPlayerSocketId) {
-                otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
-                socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Uh Oh, ${thisPlayer.name} has disconnected. You can navigate to the Home page to try and connect with another player. ` });
-                game.removePlayers();
-                otherPlayer.pieces = setUpBlackPieces();
-                otherPlayer.turn = true;
-                otherPlayer.decending = true;
-                otherPlayer.winner = false;
-                game.player1 = otherPlayer;
-                socket.to(otherPlayerSocketId).emit('reInitReturn', { player: JSON.stringify(otherPlayer) });
-                game = new Game(otherPlayer, undefined);
-                games.push(game);
+            if (game) {
+                console.log(`Removing ${game.id} from list of games`);
+                games = games.filter((g) => { g.id !== game.id });
+                const thisPlayer = game.getPlayerBySocket(socket.id);
+                // if there is another player, set them up, otherwise just remove the game
+                if (otherPlayerSocketId) {
+                    otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
+                    socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Uh Oh, ${thisPlayer.name} has disconnected. You can navigate to the Home page to try and connect with another player. ` });
+                    game.removePlayers();
+                    otherPlayer.pieces = setUpBlackPieces();
+                    otherPlayer.turn = true;
+                    otherPlayer.decending = true;
+                    otherPlayer.winner = false;
+                    game.player1 = otherPlayer;
+                    socket.to(otherPlayerSocketId).emit('reInitReturn', { player: JSON.stringify(otherPlayer) });
+                    game = new Game(otherPlayer, undefined);
+                    games.push(game);
+                }
             }
+        } catch (error) {
+            handleError(socket, error, "disconnect");
         }
     });
 });
@@ -246,7 +266,7 @@ function setUpRedPieces() {
 
 function randomNameGenerator(num) {
     let res = '';
-    if (!num){
+    if (!num) {
         num = 8;
     }
     for (let i = 0; i < num; i++) {
@@ -336,9 +356,9 @@ function replaceBadWordFilter(name) {
         "whore",
         "wtf"];
 
-    let response = name;    
-    const bads = badOnes.filter(v => {return name.toLowerCase().includes(v);});
-     if (bads && bads.length > 0) {
+    let response = name;
+    const bads = badOnes.filter(v => { return name.toLowerCase().includes(v); });
+    if (bads && bads.length > 0) {
         response = name.toLowerCase();
         bads.forEach(bad => {
             response = response.replace(bad, randomNameGenerator(bad.length));
@@ -347,3 +367,17 @@ function replaceBadWordFilter(name) {
     }
     return response;
 };
+
+function handleError(socket, error, data) {
+    try {
+        console.log(`ERROR: ${error} - DATA: ${JSON.stringify(data)}`);
+        console.error(error);
+        let errorMessage = `A stupid error happened in processing. Not something we expected. If the server didn't go down, you may want to just start over. Sorry!`
+        if (socket) {
+            socket.emit('backendError', errorMessage);
+        }
+    } catch (e) {
+        // dont' shut down if error handling error
+        console.log(e);
+    }
+}
