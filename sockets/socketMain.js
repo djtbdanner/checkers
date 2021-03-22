@@ -83,6 +83,10 @@ io.sockets.on('connect', (socket) => {
             let vals = getGameAndOtherPlayerSocket(socket);
             let otherPlayerSocketId = vals.socketId;
             let game = vals.game;
+            // the listener on phone/tablet can send drop before game starts
+            if (!game){
+                 return;
+            }
             thisPlayer = game.getPlayerBySocket(socket.id);
             otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
             let displayTurns = true;
@@ -370,7 +374,7 @@ function replaceBadWordFilter(name) {
 
 function handleError(socket, error, data) {
     try {
-        console.log(`ERROR: ${error} - DATA: ${JSON.stringify(data)}`);
+        console.log(`ERROR: ${error} - DATA: ${JSON.stringify(data)} - STACK: ${error.stack}`);
         console.error(error);
         let errorMessage = `A stupid error happened in processing. Not something we expected. If the server didn't go down, you may want to just start over. Sorry!`
         if (socket) {
