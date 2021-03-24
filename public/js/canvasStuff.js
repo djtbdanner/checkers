@@ -52,7 +52,7 @@ function drawPlayerPool(players, player) {
     let users = players.filter((p) => { return p.id !== storedPlayerIdElement.value });
     htmlString = "";
     if (users === undefined || users.length === 0) {
-        userSelectDisplay.innerHTML = "No users found at this time, your name will be on the list for any other player logging in.";
+        userSelectDisplay.innerHTML = "Right now no one is waiting for a game. When someone else logs in their name will appear here.";
     } else {
         let links = '';
         links += `${player.name}, select a player for a checkers challenge...</p>`;
@@ -79,6 +79,16 @@ function resetUpdatePoolMonitor (){
 
 function invertBoard() {
     resetUpdatePoolMonitor();
+    let ffOnWindows = false;
+    let userAgent = navigator.userAgent;
+    if (userAgent){
+        if(userAgent.includes("Firefox") && userAgent.includes("Windows")){
+            ffOnWindows = true;
+        }
+    }
+    if (ffOnWindows){
+        return;
+    }
     let checkerboard = document.getElementById("checkerboard");
     if (invertedBoard) {
         checkerboard.classList.remove("flip");
