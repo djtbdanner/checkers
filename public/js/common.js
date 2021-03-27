@@ -14,6 +14,10 @@ const userSelectHeader = document.getElementById('user_select_header');
 const userSelectDisplay = document.getElementById('user_select_display');
 const poolButton = document.getElementById("pool_btn");
 
+const backGroundColorButton = document.getElementById("background-color");
+const noPlaySquareColorButton = document.getElementById("no-play-square-color");
+const playSquareColorButton = document.getElementById("play-square-color");
+
 // checkerBoardWidthX Height used in move calculations to determine distance size, etc. (they should be same)
 let checkerBoardWidthX = checkerboard.offsetWidth;
 let checkerBoardHeightY = checkerboard.offsetWidth;
@@ -35,7 +39,26 @@ function showMenu(id) {
         theStyle.style.display === 'none' ? theStyle.style.display = 'block' : theStyle.style.display = 'none';
     }
 }
-  
+
+function setUpColorMenu(element){
+    noPlaySquareColorButton.style.backgroundColor = "";
+    noPlaySquareColorButton.style.color = "";
+    playSquareColorButton.style.backgroundColor= "";
+    playSquareColorButton.style.color = "";
+    backGroundColorButton.style.backgroundColor = "";
+    backGroundColorButton.style.color = "";
+    if (element && element.id ==="play-square-color" ){
+        playSquareColorButton.style.backgroundColor = "black";
+        playSquareColorButton.style.color = "white";
+    } else if (element && element.id === "no-play-square-color"){
+        noPlaySquareColorButton.style.backgroundColor = "black";
+        noPlaySquareColorButton.style.color = "white";
+    } else {
+        backGroundColorButton.style.backgroundColor = "black";
+        backGroundColorButton.style.color = "white";
+    }
+}
+setUpColorMenu();
 function changeSelectedColor(color){
     const rbs = document.querySelectorAll('input[name="section-to-color"]');
     let selectedValue;
@@ -45,9 +68,9 @@ function changeSelectedColor(color){
             break;
         }
     }
-    if ("play-square-color" === selectedValue){
+    if (playSquareColorButton.style.backgroundColor === "black"){
         changePlaysquareColor(color);
-    } else if ("no-play-square-color" === selectedValue){
+    } else if (noPlaySquareColorButton.style.backgroundColor === "black"){
         changeOffsquareColor(color);
     } else {
         changeBackgroundColor(color);

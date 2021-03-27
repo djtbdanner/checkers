@@ -18,28 +18,29 @@
             <div id="colorDropDown" onClick="showMenu('color_menu')" class="dropMenuItem">Select color
                 <div id="color_menu" style="display: none;">
                     <span>
-                        <label for="background-color"  onclick="event.stopPropagation()"  class="dropMenuItem">bckgrnd</label> <input id="background-color" name="section-to-color" type="radio" onclick="event.stopPropagation()" checked = "checked"/>
-                        <label for="no-play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">X sqr</label> <input id="no-play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
-                        <label for="play-square-color"  onclick="event.stopPropagation()"  class="dropMenuItem">O sqr</label> <input id="play-square-color" name="section-to-color" type="radio" onclick="event.stopPropagation()"/>
-                    </span>
-                    <a href="#" onclick="changeSelectedColor('red')" style='background-color:red;'>Red</a>
-                    <a href="#" onclick="changeSelectedColor('orange')" style='background-color:orange;'>Orange</a>
-                    <a href="#" onclick="changeSelectedColor('yellow')" style='background-color:yellow;'>Yellow</a>
-                    <a href="#" onclick="changeSelectedColor('green')" style='background-color:green;'>Green</a>
-                    <a href="#" onclick="changeSelectedColor('blue')" style='background-color:blue;'>Blue</a>
-                    <a href="#" onclick="changeSelectedColor('indigo')" style='background-color:indigo;'>Indigo</a>
-                    <a href="#" onclick="changeSelectedColor('violet')" style='background-color:violet;'>Violet</a>
-                    <a href="#" onclick="changeSelectedColor('sienna')" style='background-color:sienna;'>Sienna</a>
-                    <a href="#" onclick="changeSelectedColor('gray')" style='background-color:gray;'>Gray</a>
-                    <a href="#" onclick="changeSelectedColor('black')" style='background-color:black; color:whitesmoke;'>Black</a>
-                    <a href="#" onclick="changeSelectedColor('teal')" style='background-color:teal;'>Teal</a>
-                    <a href="#" onclick="changeSelectedColor('pink')" style='background-color:pink;'>Pink</a>
-                    <a href="#" onclick="changeSelectedColor('steelblue')" style='background-color:steelblue;'>SteelBlue</a>
-                    <a href="#" onclick="changeSelectedColor('YellowGreen')" style='background-color:YellowGreen;'>YellowGreen</a>
-                    <a href="#" onclick="changeSelectedColor('Maroon')" style='background-color:Maroon;'>Maroon</a>
-                    <a href="#" onclick="changeSelectedColor('SkyBlue')" style='background-color:SkyBlue;'>SkyBlue</a>    
-                    <a href="#" onclick="changeSelectedColor('palegreen')" style='background-color:palegreen;'>PaleGreen</a>   
-                    <a href="#" onclick="changeSelectedColor('whitesmoke')" style='background-color:whitesmoke;'>Whitesmoke</a>                        
+                    <a id="background-color"  onclick="event.stopPropagation();setUpColorMenu(this);">Background</a>
+                    <a id="play-square-color" onclick="event.stopPropagation();setUpColorMenu(this);">Play square</a>
+                    <a id="no-play-square-color" onclick="event.stopPropagation();setUpColorMenu(this);">Empty Square</a>
+                    <a>--  Done  --</a>
+                    <hr>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('red')" style='background-color:red;'>Red</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('orange')" style='background-color:orange;'>Orange</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('yellow')" style='background-color:yellow;'>Yellow</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('green')" style='background-color:green;'>Green</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('blue')" style='background-color:blue;'>Blue</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('indigo')" style='background-color:indigo;'>Indigo</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('violet')" style='background-color:violet;'>Violet</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('sienna')" style='background-color:sienna;'>Sienna</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('gray')" style='background-color:gray;'>Gray</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('black')" style='background-color:black; color:whitesmoke;'>Black</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('teal')" style='background-color:teal;'>Teal</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('pink')" style='background-color:pink;'>Pink</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('steelblue')" style='background-color:steelblue;'>SteelBlue</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('YellowGreen')" style='background-color:YellowGreen;'>YellowGreen</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('Maroon')" style='background-color:Maroon;'>Maroon</a>
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('SkyBlue')" style='background-color:SkyBlue;'>SkyBlue</a>    
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('palegreen')" style='background-color:palegreen;'>PaleGreen</a>   
+                    <a href="#" onclick="event.stopPropagation();changeSelectedColor('whitesmoke')" style='background-color:whitesmoke;'>Whitesmoke</a>                        
                 </div>
             </div>
             <br>

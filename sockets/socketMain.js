@@ -19,7 +19,7 @@ io.sockets.on('connect', (socket) => {
             let playerOne;
             let playerTwo;
             if (game) {
-                games = games.filter((g) => { g.id !== game.id; });
+                games = games.filter((g) => {return g.id !== game.id; });
                 playerOne = game.getPlayerBySocket(socket.id);
                 if (playerOne) {
                     playerTwo = game.getOtherPlayer(playerOne);
@@ -180,7 +180,7 @@ io.sockets.on('connect', (socket) => {
 
             if (game) {
                 console.log(`Removing ${game.id} from list of games`);
-                games = games.filter((g) => { g.id !== game.id });
+                games = games.filter((g) => { return g.id !== game.id });
                 const thisPlayer = game.getPlayerBySocket(socket.id);
                 // if there is another player, set them up, otherwise just remove the game
                 if (otherPlayerSocketId) {
