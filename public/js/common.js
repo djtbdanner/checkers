@@ -17,7 +17,14 @@ const poolButton = document.getElementById("pool_btn");
 const backGroundColorButton = document.getElementById("background-color");
 const noPlaySquareColorButton = document.getElementById("no-play-square-color");
 const playSquareColorButton = document.getElementById("play-square-color");
+const firstJumpRuleMenu = document.getElementById("first-jump-rule");
+const FIRST_JUMP_RULE_ON = "1<sup>st</sup> Jump rule: ON";
+const FIRST_JUMP_RULE_OFF = "1<sup>st</sup> Jump rule: OFF"
 
+const alertConfirmDiv = document.getElementById('alert_confirm_div');
+const alertConfirmMessage = document.getElementById('alert_confirm_msg');
+const alertConfirmBox = document.getElementById('alert_confirm_box');
+ 
 // checkerBoardWidthX Height used in move calculations to determine distance size, etc. (they should be same)
 let checkerBoardWidthX = checkerboard.offsetWidth;
 let checkerBoardHeightY = checkerboard.offsetWidth;
@@ -157,6 +164,16 @@ function logIn(){
     messageDiv.innerHTML = "";
     closeMenu();
     playerNameElement.focus();
+}
+
+function firstJumpRuleToggle(){
+    const fjr = firstJumpRuleMenu.innerHTML;
+    const fjrTest = "Are you sure you want the 1<sup>st</sup> jump rule "; 
+    if (fjr === FIRST_JUMP_RULE_ON){
+        alertBox(`${fjrTest} OFF?`, true, "playerJumpRuleOff()");
+    } else {
+        alertBox(`${fjrTest} ON?`, true, "playerJumpRuleOn()");
+    }
 }
 
 function getLocalStorage() {

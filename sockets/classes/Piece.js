@@ -4,6 +4,7 @@ class Piece{
         this.king = king;
         this.location = location;
         this.decending = "R" === color;
+        this.additionalSequencialJump = false;
     }
 }
 

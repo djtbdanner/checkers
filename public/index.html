@@ -44,7 +44,9 @@
                 </div>
             </div>
             <br>
-                <div id="showMenu" onClick="logOut()" class="dropMenuItem">Log-out</div>
+            <div id="first-jump-rule" onClick="firstJumpRuleToggle()" class="dropMenuItem">1<sup>st</sup> Jump rule: ON</div>
+            <br>
+            <div id="showMenu" onClick="logOut()" class="dropMenuItem">Log-out</div>
             <br>
         </div>
     </div>
@@ -78,8 +80,17 @@
         <hr>
         <p id="user_select_display"></p>
         <hr>
-        <!-- <p>Or, just select Play Solo from the menu (top left).</p> -->
     </div>
+
+    <div class="alert_confirm_modal" id="alert_confirm_div" style="display:none">
+    </div>
+    <div class="alert_confirm" id="alert_confirm_box" style="display:none">
+        <h1 id="alert_confirm_msg"></h1>
+        <a href="#" id="ok_button" class = "login_button"
+            onclick="document.getElementById('alert_confirm_div').style.display='none'; document.getElementById('alert_confirm_box').style.display='none';">&nbsp;OK&nbsp;</a>
+        <a href="#" id="cancel_button" class = "login_button" style="display:none"
+            onclick="document.getElementById('alert_confirm_div').style.display='none'; document.getElementById('alert_confirm_box').style.display='none';">CANCEL</a>
+    </div>  
 
     <input type="hidden" id="storedPlayerName" value=""/>
     <input type="hidden" id="storedPlayerId" value=""/>

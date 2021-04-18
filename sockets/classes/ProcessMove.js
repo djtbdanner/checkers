@@ -15,9 +15,9 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
     }
 
     if (destination && destination.startsWith("img")) {
-        if (destination.split("img_")[1] === origin){
+        if (destination.split("img_")[1] === origin) {
             // player put piece back into original square
-            return {game};
+            return { game };
         }
         return { game, message: `cannot move to an occupied square` };
     }
@@ -41,19 +41,35 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
         }
     }
 
-    let mustJump = shouldAnyPlayerPieceJump(game, currentPlayer);
+    let hasJump = shouldAnyPlayerPieceJump(game, currentPlayer);
+    // if the last run was jump the piece that jumped will be flagged,
+    // all flags are rest with player turn change
+    let pieceHasToJumpAdditional = undefined
+    if (hasJump) {
+        pieceHasToJumpAdditional = currentPlayer.pieces.find(piece => {
+            return piece.additionalSequencialJump;
+        });
+    }
 
     // over 2 must be a jump
     let didJump = false;
     if (Math.abs(originInts[0] - destinationInts[0]) > 1 || Math.abs(originInts[1] - destinationInts[1]) > 1) {
+        // did some kind of jump, check if the jump is a required piece
+        if (pieceHasToJumpAdditional && pieceHasToJumpAdditional !== piece){
+            return { game, message: `You must complete the jump chain (another jump with the same piece)` };
+        }
+        // validate and process will remove other player's pieces
         didJump = validateAndProcesPlayerJump(originInts, destinationInts, game, currentPlayer);
         if (!didJump) {
             return { game, message: `You cannot move more than one row at a time` };
         }
     }
 
-    // if a jump is required, be sure one was done.
-    if (mustJump && !didJump) {
+    if (pieceHasToJumpAdditional && !didJump){
+        return { game, message: `You must complete the jump chain (another jump with the same piece)` };
+    }
+
+    if (hasJump && !didJump && game.rules.FIRST_JUMP_REQUIRED) {
         return { game, message: `You have at least one jump on the board` };
     }
 
@@ -65,11 +81,12 @@ exports.validateAndProcessPlayerMove = (game, currentPlayer, origin, destination
     piece.location = destination;
 
     if (didJump && shouldPieceJump(piece, game, currentPlayer)) {
+        piece.additionalSequencialJump = true;
     } else {
         game.resetTurn();
     }
 
-    if (!doesPlayerHaveAMove(game, otherPlayer)){
+    if (!doesPlayerHaveAMove(game, otherPlayer)) {
         currentPlayer.winner = true;
     }
 

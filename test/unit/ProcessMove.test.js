@@ -15,6 +15,7 @@ describe("ProcessMove tests", () => {
         player1.turn = true;
         player2.turn = false;
         testGame = new Game(player1, player2);
+        testGame.rules.FIRST_JUMP_REQUIRED = true; // default but be sure is reset after tests that test this rule
     });
 
     it("validateAndProcessPlayerMove should exist", () => {
@@ -124,19 +125,47 @@ describe("ProcessMove tests", () => {
 
     it("should report required jump as needed", () => {
 
-        let shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_3")
+        let shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_2")
         expect(shouldJump).toBeFalsy();
 
         testGame.player1.pieces[11].location = "5_6";
         testGame.player2.pieces[11].location = "4_7";
+        testGame.player1.turn = true;
+        testGame.player2.turn = false;
 
-        shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_3")
+        shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_2")
         expect(shouldJump).toBeTruthy();
         expect(game.player1.turn).toBeTruthy();
+
+        result = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "6_1", "5_2", ProcessMove.rules);
+        expect(result.message).toContain("You have at least one jump on the board");
+        expect(testGame.player1.pieces[8].location).toEqual("6_1");
     });
 
 
-    it("should not allow moves that are not jump when jump is available on board", () => {
+    it("should skip report required jump if optioned out", () => {
+
+        let shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_2")
+        expect(shouldJump).toBeFalsy();
+
+        testGame.player1.pieces[11].location = "5_6";
+        testGame.player2.pieces[11].location = "4_7";
+        testGame.player1.turn = true;
+        testGame.player2.turn = false;
+
+        shouldJump = ProcessMove.shouldAnyPlayerPieceJump(testGame, testGame.player1, "6_1", "5_2")
+        expect(shouldJump).toBeTruthy();
+        expect(game.player1.turn).toBeTruthy();
+
+        testGame.rules.FIRST_JUMP_REQUIRED = false;
+        result = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "6_1", "5_2");
+        expect(result.message).toBeFalsy();
+        expect(testGame.player1.pieces[8].location).toEqual("5_2");
+
+    });
+
+
+    it("properly proceses jump when jump is required or jump is made", () => {
         testGame.player1.pieces[11].location = "5_6";
         testGame.player2.pieces[11].location = "4_7";
 
@@ -160,6 +189,72 @@ describe("ProcessMove tests", () => {
         expect(game.player1.pieces.length).toEqual(12);
         expect(game.player2.pieces.length).toEqual(11);
         expect(game.player1.pieces[11].location).toEqual("3_8");
+    });
+
+    it("Force additional jump if the player has an additional jump", () => {
+
+        // remove 1_4, move 3_2 to 5_2 red for additional jump, move 3_6 to 4_7 red, 6_7 to 5_8 black, black's turn
+        testGame.player2.pieces[8].location = "5_2";
+        testGame.player2.pieces[10].location = "4_7"
+        testGame.player2.pieces.splice(1, 1);
+        testGame.player1.pieces[11].location = "5_8";
+        testGame.player1.turn = true;
+        testGame.player2.turn = false;
+
+        // first jump
+        let val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "5_8", "3_6")
+        let game = val.game;
+        let message = val.message;
+        expect (message).toBeFalsy();
+        expect(game.player1.turn).toBeTruthy();
+        expect(game.player2.turn).toBeFalsy();
+        expect(game.player1.pieces.length).toEqual(12);
+        expect(game.player2.pieces.length).toEqual(10);
+        expect(testGame.player1.pieces[11].location).toEqual("3_6");
+
+        // try a different move and it should fail with message
+        val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "6_3", "5_2")
+        game = val.game;
+        message = val.message;
+        expect(message).toContain("You must complete the jump chain (another jump with the same piece)");
+        expect(game.player1.turn).toBeTruthy();
+
+        // try a jump with different piece
+        val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "6_1", "4_3")
+        game = val.game;
+        message = val.message;
+        expect(message).toContain("You must complete the jump chain (another jump with the same piece)");
+        expect(game.player1.turn).toBeTruthy();
+
+        // do the next jump
+        val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "3_6", "1_4")
+        game = val.game;
+        message = val.message;
+        expect (message).toBeFalsy();
+        expect(game.player1.turn).toBeTruthy();
+        expect(game.player2.turn).toBeFalsy();
+        expect(game.player1.pieces.length).toEqual(12);
+        expect(game.player2.pieces.length).toEqual(9);
+        expect(game.player1.pieces[11].king === true);
+
+         // try a different move and it should fail with message
+        val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "6_3", "5_2")
+        game = val.game;
+        message = val.message;
+        expect(message).toContain("You must complete the jump chain (another jump with the same piece)");
+        expect(game.player1.turn).toBeTruthy();
+
+        // do the next jump as a KING and done with turn
+        val = ProcessMove.validateAndProcessPlayerMove(testGame, testGame.player1, "1_4", "3_2")
+        game = val.game;
+        message = val.message;
+        expect (message).toBeFalsy();
+        expect(game.player1.turn).toBeFalsy();
+        expect(game.player2.turn).toBeTruthy();
+        expect(game.player1.pieces.length).toEqual(12);
+        expect(game.player2.pieces.length).toEqual(8);
+        expect(game.player1.pieces[11].king === true);
+        expect(game.player1.pieces[11].localtion === "3_2");
     });
 
     it("should king me", () => {
@@ -195,7 +290,7 @@ describe("ProcessMove tests", () => {
         expect(testGame.player2.pieces[11].king).toBeTruthy();
     });
 
-    it("player1 should have move or if no move possible looses", () => {
+    it("player1 should have move or if no move possible loses", () => {
 
         let hasMove = ProcessMove.doesPlayerHaveAMove(testGame, testGame.player1);
         expect(hasMove).toBeTruthy();

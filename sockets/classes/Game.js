@@ -1,9 +1,16 @@
-const { v4: uuidv4 } = require('uuid');
+
+const crypto = require("crypto");
+
+const rules = {
+    FIRST_JUMP_REQUIRED:true,
+}
+
 class Game {
     constructor(player1, player2) {
-        this.id = uuidv4();
+        this.id = crypto.randomBytes(16).toString("hex");;
         this.player1 = player1;
         this.player2 = player2;
+        this.rules = rules;
     }
 
     getPlayerBySocket(socketid) {
@@ -18,6 +25,12 @@ class Game {
     resetTurn() {
         this.player1.turn = !this.player1.turn;
         this.player2.turn = !this.player2.turn;
+        this.player1.pieces.forEach(piece => {
+            piece.additionalSequencialJump = false;
+        });
+        this.player2.pieces.forEach(piece => {
+            piece.additionalSequencialJump = false;
+        });
     }
 
     getOtherPlayer(player) {

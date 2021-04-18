@@ -1,9 +1,9 @@
 // this is where ALL the data is stored about a given player
-const { v4: uuidv4 } = require('uuid');
+const crypto = require("crypto");
 class Player{
     constructor(socketId, pieces, name, id){
         if (!id){
-            this.id= uuidv4();
+            this.id = crypto.randomBytes(16).toString("hex");;
         } else {
             this.id = id;
         }

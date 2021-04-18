@@ -18,6 +18,7 @@ io.sockets.on('connect', (socket) => {
             let game = getGameAndOtherPlayerSocket(socket).game;
             let playerOne;
             let playerTwo;
+            let firstJumpRequiredRule = true;
             if (game) {
                 games = games.filter((g) => {return g.id !== game.id; });
                 playerOne = game.getPlayerBySocket(socket.id);
@@ -25,9 +26,11 @@ io.sockets.on('connect', (socket) => {
                     playerTwo = game.getOtherPlayer(playerOne);
                 }
                 socket.emit('resetInvert', {});
+                firstJumpRequiredRule = game.rules.FIRST_JUMP_REQUIRED;
             } else {
                 playerOne = players.find((p) => { return p.socketId === socket.id });
                 playerTwo = players.find((p) => { return p.id === data.playerTwoId });
+                firstJumpRequiredRule = JSON.parse(data.firstJumpRule);
             }
 
             if (!playerTwo || !playerOne) {
@@ -38,6 +41,7 @@ io.sockets.on('connect', (socket) => {
             socket.emit('resetInvert', {});
             socket.to(playerTwo.socketId).emit('resetInvert', {});
             let aGame = new Game(playerOne, playerTwo);
+            aGame.rules.FIRST_JUMP_REQUIRED = firstJumpRequiredRule;
             games.push(aGame);
 
             playerOne.pieces = setUpBlackPieces();
@@ -51,11 +55,11 @@ io.sockets.on('connect', (socket) => {
             players = players.filter((p) => { return p.id !== playerOne.id });
             players = players.filter((p) => { return p.id !== playerTwo.id });
             console.log(`Game Begins :  ${JSON.stringify(aGame)}`);
-            socket.emit('initGameReturn', { player: JSON.stringify(playerOne), otherPlayer: JSON.stringify(playerTwo) });
-            socket.to(playerTwo.socketId).emit('initGameReturn', { player: JSON.stringify(playerTwo), otherPlayer: JSON.stringify(playerOne) });
+            socket.emit('initGameReturn', { player: JSON.stringify(playerOne), otherPlayer: JSON.stringify(playerTwo), gameRules: JSON.stringify(aGame.rules) });
+            socket.to(playerTwo.socketId).emit('initGameReturn', { player: JSON.stringify(playerTwo), otherPlayer: JSON.stringify(playerOne), gameRules: JSON.stringify(aGame.rules) });
 
-            socket.emit('flashMessage', { message: `Playing ${playerTwo.name}, you are playing black pieces. It is your turn first.` });
-            socket.to(playerTwo.socketId).emit('flashMessage', { message: `Playing ${playerOne.name}, you are playing red pieces. It is ${playerOne.getPossesiveName()} turn first.` });
+            socket.emit('flashMessage', { message: `Playing ${playerTwo.name}, you are playing black pieces. It is your turn first. 1<sup>st</sup> jump rule is ${aGame.rules.FIRST_JUMP_REQUIRED?"ON":"OFF"}.`});
+            socket.to(playerTwo.socketId).emit('flashMessage', { message: `Playing ${playerOne.name}, you are playing red pieces. It is ${playerOne.getPossesiveName()} turn first. 1<sup>st</sup> jump rule is ${aGame.rules.FIRST_JUMP_REQUIRED?"ON":"OFF"}.` });
             // invert board for player 2 so their side is facing them
             socket.to(playerTwo.socketId).emit('invertBoard', {});
         } catch (error) {
@@ -71,6 +75,8 @@ io.sockets.on('connect', (socket) => {
             //console.log(data);
             if (socketId != undefined) {
                 socket.to(socketId).emit('otherPlayerMove', JSON.stringify(data));
+            } else {
+                throw Error("Looks like the other player has exited or a stupid network or server error has cause an issue.");
             }
         } catch (error) {
             handleError(socket, error, data);
@@ -166,6 +172,27 @@ io.sockets.on('connect', (socket) => {
         }
     });
 
+    socket.on('playerJumpRuleOn', function () {
+        let vals = getGameAndOtherPlayerSocket(socket);
+        let otherPlayerSocketId = vals.socketId;
+        let game = vals.game;
+        if (game){
+            thisPlayer = game.getPlayerBySocket(socket.id);
+            game.rules.FIRST_JUMP_REQUIRED=true;
+            socket.to(otherPlayerSocketId).emit('playerTurnedOnJumpRule', { playerName: thisPlayer.name });
+        }
+    });
+    socket.on('playerJumpRuleOff', function () {
+        let vals = getGameAndOtherPlayerSocket(socket);
+        let otherPlayerSocketId = vals.socketId;
+        let game = vals.game;
+        if (game){
+            thisPlayer = game.getPlayerBySocket(socket.id);
+            game.rules.FIRST_JUMP_REQUIRED=false;
+            socket.to(otherPlayerSocketId).emit('playerTurnedOffJumpRule', { playerName: thisPlayer.name });
+        }
+    });
+
     // player disconnects
     socket.on('disconnect', function () {
         try {
@@ -173,7 +200,6 @@ io.sockets.on('connect', (socket) => {
             let otherPlayerSocketId = vals.socketId;
             let game = vals.game;
 
-            // console.log(JSON.stringify(players));
             console.log(`Removing player with socket ${socket.id} from list of players`);
             players = players.filter((p) => { return p.socketId !== socket.id });
             console.log(JSON.stringify(players));
@@ -182,19 +208,10 @@ io.sockets.on('connect', (socket) => {
                 console.log(`Removing ${game.id} from list of games`);
                 games = games.filter((g) => { return g.id !== game.id });
                 const thisPlayer = game.getPlayerBySocket(socket.id);
-                // if there is another player, set them up, otherwise just remove the game
+                // if there is another player, reset them
                 if (otherPlayerSocketId) {
                     otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
-                    socket.to(otherPlayerSocketId).emit('flashMessage', { message: `Uh Oh, ${thisPlayer.name} has disconnected. You can navigate to the Home page to try and connect with another player. ` });
-                    game.removePlayers();
-                    otherPlayer.pieces = setUpBlackPieces();
-                    otherPlayer.turn = true;
-                    otherPlayer.decending = true;
-                    otherPlayer.winner = false;
-                    game.player1 = otherPlayer;
-                    socket.to(otherPlayerSocketId).emit('reInitReturn', { player: JSON.stringify(otherPlayer) });
-                    game = new Game(otherPlayer, undefined);
-                    games.push(game);
+                    socket.to(otherPlayerSocketId).emit('otherPlayerLeft',{ message: `Uh Oh, ${thisPlayer.name} has disconnected forcing an end to the game. ` });
                 }
             }
         } catch (error) {

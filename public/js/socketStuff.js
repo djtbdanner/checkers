@@ -1,7 +1,10 @@
 function initGame(playerTwoId) {
     resetUpdatePoolMonitor();
+    let firstJumpRule = firstJumpRuleMenu.innerHTML === FIRST_JUMP_RULE_ON;
+    checkerboard.classList.remove("flip");
     socket.emit('initGame', {
-        playerTwoId
+        playerTwoId,
+        firstJumpRule
     });
 }
 
@@ -14,6 +17,12 @@ socket.on('initGameReturn', (data) => {
     addPieces(player1.pieces, true);
     let player2 = JSON.parse(data.otherPlayer);
     addPieces(player2.pieces, false);
+    let gameRules = JSON.parse(data.gameRules);
+    if (gameRules.FIRST_JUMP_REQUIRED){
+        firstJumpRuleMenu.innerHTML = FIRST_JUMP_RULE_ON;
+    } else {
+        firstJumpRuleMenu.innerHTML = FIRST_JUMP_RULE_OFF;
+    }
 });
 
 function joinPool() {playerNameElement
@@ -50,16 +59,9 @@ socket.on('joinPoolReturn', (data) => {
 });
 
 // reinitilaze game - likely due to other player leaving
-socket.on('reInitReturn', (data) => {
-    resetUpdatePoolMonitor();
-    if (invertedBoard) {
-        invertBoard();
-    }
-    drawCheckerBoard();
-    checkerBoardWidthX = document.getElementById("checkerboard").offsetWidth;
-    checkerBoardHeightY = document.getElementById("checkerboard").offsetWidth;
-    let player = JSON.parse(data.player);
-    addPieces(player.pieces, true);
+socket.on('otherPlayerLeft', (data) => {
+    logIn();
+    alertBox(`${data.message}`, false);
 });
 
 socket.on('invertBoard', (data) => {
@@ -69,7 +71,6 @@ socket.on('invertBoard', (data) => {
 socket.on('resetInvert', (data) => {
     checkerboard.classList.remove("flip");
     invertedBoard = false;
-    console.log("resetted the damn thing");
 });
 
 socket.on('updateBoard', (data) => {
@@ -139,4 +140,40 @@ function reconnect() {
 
 socket.on('otherPlayerMove', (data) => {
     movePiece(data);
+});
+
+function playerJumpRuleOn(){
+    const playerName = storedPlayerNameElement.value;
+    const playerId = storedPlayerIdElement.value;
+    socket.emit('playerJumpRuleOn', {
+        playerName,
+        playerId
+    });
+    firstJumpRuleMenu.innerHTML = FIRST_JUMP_RULE_ON;
+    checkMessageDivForJumpRule(true);
+}
+
+function playerJumpRuleOff(){
+    const playerName = storedPlayerNameElement.value;
+    const playerId = storedPlayerIdElement.value;
+    socket.emit('playerJumpRuleOff', {
+        playerName,
+        playerId
+    });
+    firstJumpRuleMenu.innerHTML = FIRST_JUMP_RULE_OFF;
+    checkMessageDivForJumpRule(false);
+}
+
+socket.on('playerTurnedOnJumpRule', (data) => {
+    let name = data.playerName;
+    alertBox(`${name} turned the 1<sup>st</sup> jump rule <b>ON</b>.`, false);
+    firstJumpRuleMenu.innerHTML = FIRST_JUMP_RULE_ON;
+    checkMessageDivForJumpRule(true);
+});
+
+socket.on('playerTurnedOffJumpRule', (data) => {
+    let name = data.playerName;
+    alertBox(`${name} turned the 1<sup>st</sup> jump rule <b>OFF</b>.`, false);
+    firstJumpRuleMenu.innerHTML = FIRST_JUMP_RULE_OFF;
+    checkMessageDivForJumpRule(false);
 });

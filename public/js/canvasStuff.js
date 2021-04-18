@@ -270,3 +270,41 @@ function addListeners() {
     listenersAdded = true;
 }
 addListeners();
+
+// If OK button has additional function pass in as name (e.g. functionName())
+function alertBox(message, showCancel, okFunction) {
+    let okButton = document.getElementById('ok_button');
+    // clear the onClick, the set as needed if function passed or no function passed
+    okButton.setAttribute("onClick", undefined);
+    if (okFunction !== undefined) {
+        okButton.setAttribute("onClick", okFunction + ";clearAlertBox();")
+    } else {
+        okButton.setAttribute("onClick", "clearAlertBox();")
+    }
+    alertConfirmMessage.innerHTML = message;
+    alertConfirmDiv.style.display = "initial";
+    alertConfirmBox.style.display = "initial"
+    let cancelButton = document.getElementById('cancel_button');
+    if (showCancel) {
+        cancelButton.style.display = "initial";
+    } else {
+        cancelButton.style.display = "none";
+    }
+}
+
+function clearAlertBox() {
+    document.getElementById('alert_confirm_div').style.display = 'none';
+    document.getElementById('alert_confirm_box').style.display = 'none';
+}
+
+function checkMessageDivForJumpRule(ruleOn){
+    let message = messageDiv.innerHTML;
+    if (message && message.includes("jump rule is")){
+        if (ruleOn){
+            message = message.replace("OFF.", "ON.");
+        } else {
+            message = message.replace("ON.", "OFF.");
+        }
+        messageDiv.innerHTML = message;
+    }
+}
