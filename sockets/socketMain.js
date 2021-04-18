@@ -211,7 +211,7 @@ io.sockets.on('connect', (socket) => {
                 // if there is another player, reset them
                 if (otherPlayerSocketId) {
                     otherPlayer = game.getPlayerBySocket(otherPlayerSocketId);
-                    socket.to(otherPlayerSocketId).emit('otherPlayerLeft',{ message: `Uh Oh, ${thisPlayer.name} has disconnected forcing an end to the game. ` });
+                    socket.to(otherPlayerSocketId).emit('otherPlayerLeft',{ message: `Uh Oh, ${thisPlayer.name} has disconnected this game is over :( . ` });
                 }
             }
         } catch (error) {

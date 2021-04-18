@@ -60,7 +60,7 @@ socket.on('joinPoolReturn', (data) => {
 
 // reinitilaze game - likely due to other player leaving
 socket.on('otherPlayerLeft', (data) => {
-    logIn();
+    logInImp();
     alertBox(`${data.message}`, false);
 });
 

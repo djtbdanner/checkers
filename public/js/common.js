@@ -140,7 +140,15 @@ function closeMenu() {
     document.getElementById('color_menu').style.display = 'none';
 }
 
-function logOut(){
+function logOut() {
+    if (checkerboard.style.display === "block") {
+        alertBox(`Are you sure you you want to log out?`, true, "logOutImp()");
+    } else {
+        logOutImp();
+    }
+}
+
+function logOutImp(){
     resetUpdatePoolMonitor();
     disconnect();
     userSelectDiv.style.display = "none";
@@ -153,7 +161,15 @@ function logOut(){
     closeMenu();
 }
 
-function logIn(){
+function logIn() {
+    if (checkerboard.style.display === "block") {
+        alertBox(`Are you sure you want to go to the log in screen?`, true, "logInImp()");
+    } else { 
+        logInImp(); 
+    }
+}
+
+function logInImp(){
     resetUpdatePoolMonitor();
     disconnect();    
     reconnect();
