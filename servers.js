@@ -9,6 +9,11 @@ const port = 8080;
 
 app = http.createServer(function (req, res) {
   let url = req.url;
+  if (url.includes(`?fbclid`)){
+    let idontwantfacebook = url.indexOf(`?fbclid`);
+    console.log(`linked in from facebook: ${url}`);exi
+    url = url.substring(0, idontwantfacebook);
+  }
   console.log(`checking URL:${url}, allowed: ${allowedFiles.includes(url)}`);
   if (!allowedFiles.includes(url)){
     res.writeHead(404);
